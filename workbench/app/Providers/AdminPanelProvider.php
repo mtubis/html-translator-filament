@@ -21,6 +21,7 @@ final class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->resources([PostResource::class])
+            ->databaseNotifications()
             ->plugin(
                 HtmlTranslatorPlugin::make()
                     ->sourceLocale('es')

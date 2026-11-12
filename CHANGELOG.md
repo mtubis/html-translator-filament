@@ -27,4 +27,10 @@ All notable changes to this project are documented here. The format follows
   and English/Spanish UI strings.
 - `TranslationStateStore::markReviewedAll()`, `TranslationReport::merge()`, `Support\ActiveLocale` (reads a public
   `activeLocale`, as on lara-zeus/spatie-translatable pages).
+- Queue: `HtmlTranslatorPlugin::queue()` and `->rateLimit()`; `TranslateRecordJob` (overlap protection, rate
+  limiting, database notification with the report, generic failure notification); the bulk action dispatches one
+  batch with one notification.
+- `RefreshesAfterTranslation` trait for relation managers (badges refresh after the translate action).
+- Fixed after the first dogfooding run: status column label ("Translation"), `TranslationReport::skipped()` no longer
+  counts empty sources (`empty()` does).
 - Mutation testing (Infection, as in html-translator-laravel) is planned once there is logic worth mutating.

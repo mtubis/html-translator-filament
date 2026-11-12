@@ -5,15 +5,20 @@ declare(strict_types=1);
 namespace HtmlTranslator\Filament\Actions;
 
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Support\Icons\Heroicon;
 use HtmlTranslator\Filament\Actions\Concerns\HasTranslationForm;
 use HtmlTranslator\Filament\Contracts\TracksTranslations;
+use HtmlTranslator\Filament\Jobs\TranslateRecordJob;
 use HtmlTranslator\Filament\Notifications\ReportNotification;
 use HtmlTranslator\Filament\Support\ActiveLocale;
 use HtmlTranslator\Filament\Support\Lang;
+use HtmlTranslator\Filament\Support\TranslationDefaults;
 use HtmlTranslator\Filament\Translation\TranslateRecord;
+use Illuminate\Contracts\Auth\Factory as AuthFactory;
 use Illuminate\Database\Eloquent\Model;
+use Livewire\Component;
 
 /**
  * Header action for edit pages: translates the record (and the configured relations) from the source locale into the
@@ -53,9 +58,21 @@ final class TranslateRecordAction extends Action
             ->modalDescription(Lang::get('actions.translate.description'))
             ->hidden(static fn(mixed $livewire, ActiveLocale $active): bool => $active->isEditingSource($livewire))
             ->schema(fn(): array => $this->translationFormSchema())
-            ->action(function (array $data, ?Model $record, mixed $livewire, ActiveLocale $active, TranslateRecord $translate): void {
+            ->action(function (array $data, ?Model $record, mixed $livewire, ActiveLocale $active, TranslateRecord $translate, TranslationDefaults $defaults, AuthFactory $auth): void {
                 $locale = self::localeFrom($data, $livewire, $active);
                 if (! $record instanceof TracksTranslations || $locale === null) {
+                    return;
+                }
+
+                if ($defaults->queue()) {
+                    $job = new TranslateRecordJob($record, $locale, self::policyFrom($data), $this->relations, self::userId($auth));
+                    dispatch($job->onConnection($defaults->connection())->onQueue($defaults->queueName()));
+                    Notification::make()
+                        ->title(Lang::get('notifications.started'))
+                        ->body(Lang::get('notifications.started_body'))
+                        ->info()
+                        ->send();
+
                     return;
                 }
 
@@ -63,6 +80,10 @@ final class TranslateRecordAction extends Action
                 ReportNotification::make($report)->send();
 
                 $this->refreshForm($livewire, $record, $locale, $active);
+                if ($livewire instanceof Component) {
+                    // Relation managers using RefreshesAfterTranslation re-render their status badges.
+                    $livewire->dispatch('html-translator-translated');
+                }
             });
     }
 

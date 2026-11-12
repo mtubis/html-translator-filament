@@ -94,7 +94,7 @@ final readonly class TranslateRecord
 
         $source = $model->getTranslation($attribute, $this->locales->source(), false);
         if (! \is_string($source) || trim($source) === '') {
-            return [$outcome(OutcomeStatus::Skipped, 'empty_source'), null, null];
+            return [$outcome(OutcomeStatus::Skipped, TranslationReport::EMPTY_SOURCE), null, null];
         }
 
         $status = $this->states->status($model, $attribute, $locale);

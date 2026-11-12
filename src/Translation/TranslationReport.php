@@ -12,6 +12,8 @@ use HtmlTranslator\TranslationStats;
  */
 final readonly class TranslationReport
 {
+    public const string EMPTY_SOURCE = 'empty_source';
+
     /**
      * @param list<AttributeOutcome> $outcomes
      * @param list<TranslationStats> $stats
@@ -49,9 +51,26 @@ final readonly class TranslationReport
         return $this->count(OutcomeStatus::Translated);
     }
 
+    /**
+     * Existing translations kept by the overwrite policy (empty sources are counted by empty()).
+     */
     public function skipped(): int
     {
-        return $this->count(OutcomeStatus::Skipped);
+        return \count(array_filter(
+            $this->outcomes,
+            static fn(AttributeOutcome $outcome): bool => $outcome->status === OutcomeStatus::Skipped && $outcome->reason !== self::EMPTY_SOURCE,
+        ));
+    }
+
+    /**
+     * Attributes without source text: nothing to translate.
+     */
+    public function empty(): int
+    {
+        return \count(array_filter(
+            $this->outcomes,
+            static fn(AttributeOutcome $outcome): bool => $outcome->reason === self::EMPTY_SOURCE,
+        ));
     }
 
     public function incomplete(): int

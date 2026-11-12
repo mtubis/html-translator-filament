@@ -33,7 +33,16 @@ return [
             'label' => 'Generar borradores traducidos',
         ],
     ],
+    'columns' => [
+        'status' => 'Traducción',
+    ],
     'notifications' => [
+        'started' => 'Traducción iniciada',
+        'started_body' => 'Recibirás un aviso cuando el borrador esté listo.',
+        'failed' => 'No se pudo terminar la traducción',
+        'failed_body' => 'Inténtalo más tarde. Si el error se repite, avisa al administrador.',
+        'batch_done' => 'Borradores traducidos listos',
+        'batch_body' => ':done de :total registros traducidos.',
         'translated' => 'Borrador traducido listo',
         'translated_with_problems' => 'Borrador traducido con problemas',
         'counts' => 'Traducidos: :translated · Omitidos: :skipped · Incompletos: :incomplete · Con error: :failed',

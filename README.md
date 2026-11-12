@@ -128,6 +128,25 @@ $table
 - Notifications contain only counts, usage and the translator's issue messages, never prompt text, translations or
   keys. Labels come from `lang/{en,es}`; override them in `lang/vendor/html-translator-filament`.
 
+## Queue
+With a real provider a record takes seconds, so translate in the background:
+
+```php
+HtmlTranslatorPlugin::make()
+    ->locales(['es', 'en'])
+    ->queue(connection: 'database', queueName: 'translations')   // both optional
+    ->rateLimit(30);                                              // jobs per minute, optional
+
+$panel->databaseNotifications();   // the editor is told when a job (or a bulk batch) is done
+```
+
+- Run a queue worker (`php artisan queue:work --queue=translations`). Bulk runs use job batches, so they need the
+  `job_batches` table.
+- One record and locale is never translated twice at the same time (`WithoutOverlapping`). Failed jobs notify the
+  editor with a generic message; exception details stay in the logs.
+- Relation managers that show translations should `use HtmlTranslator\Filament\Concerns\RefreshesAfterTranslation;`,
+  so their badges refresh after a synchronous translate action on the page.
+
 ## Development
 See [CONTRIBUTING.md](CONTRIBUTING.md). `composer check` runs Pint, Rector, PHPStan and PHPUnit. `composer serve`
 starts the workbench panel.

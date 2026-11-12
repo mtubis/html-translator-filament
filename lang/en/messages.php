@@ -33,7 +33,16 @@ return [
             'label' => 'Generate draft translations',
         ],
     ],
+    'columns' => [
+        'status' => 'Translation',
+    ],
     'notifications' => [
+        'started' => 'Translation started',
+        'started_body' => 'You will be notified when the draft is ready.',
+        'failed' => 'The translation could not be finished',
+        'failed_body' => 'Please try again later. If it keeps failing, contact the administrator.',
+        'batch_done' => 'Draft translations ready',
+        'batch_body' => ':done of :total records translated.',
         'translated' => 'Draft translation ready',
         'translated_with_problems' => 'Draft translation finished with problems',
         'counts' => 'Translated: :translated · Skipped: :skipped · Incomplete: :incomplete · Failed: :failed',

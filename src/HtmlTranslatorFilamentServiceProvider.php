@@ -8,6 +8,8 @@ use HtmlTranslator\Filament\Contracts\TranslationStateStore;
 use HtmlTranslator\Filament\Stores\EloquentTranslationStateStore;
 use HtmlTranslator\Filament\Support\TranslationDefaults;
 use HtmlTranslator\Filament\Support\TranslationLocales;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 final class HtmlTranslatorFilamentServiceProvider extends ServiceProvider
@@ -27,6 +29,12 @@ final class HtmlTranslatorFilamentServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadTranslationsFrom(__DIR__ . '/../lang', self::TRANSLATION_NAMESPACE);
+
+        RateLimiter::for(TranslationDefaults::RATE_LIMITER, function (): Limit {
+            $perMinute = $this->app->make(TranslationDefaults::class)->rateLimit();
+
+            return $perMinute === null ? Limit::none() : Limit::perMinute($perMinute);
+        });
 
         // Published, not loaded: the application decides when the table is created (and keeps an existing one).
         $this->publishesMigrations([

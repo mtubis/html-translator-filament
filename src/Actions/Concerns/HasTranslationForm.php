@@ -13,6 +13,7 @@ use HtmlTranslator\Filament\Enums\OverwritePolicy;
 use HtmlTranslator\Filament\Support\ActiveLocale;
 use HtmlTranslator\Filament\Support\Lang;
 use HtmlTranslator\Filament\Support\TranslationLocales;
+use Illuminate\Contracts\Auth\Factory;
 
 /**
  * The modal form shared by the record and bulk translate actions: target locale, overwrite policy and, for Force, an
@@ -61,6 +62,13 @@ trait HasTranslationForm
         $policy = $data['policy'] ?? null;
 
         return \is_string($policy) ? OverwritePolicy::from($policy) : OverwritePolicy::OnlyMissing;
+    }
+
+    protected static function userId(Factory $auth): ?int
+    {
+        $id = $auth->guard()->id();
+
+        return \is_int($id) ? $id : (is_numeric($id) ? (int) $id : null);
     }
 
     /**

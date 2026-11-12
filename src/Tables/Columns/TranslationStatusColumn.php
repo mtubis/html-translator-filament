@@ -45,7 +45,7 @@ final class TranslationStatusColumn extends TextColumn
     {
         parent::setUp();
 
-        $this->label(Lang::get('plugin_name'))
+        $this->label(Lang::get('columns.status'))
             ->badge()
             ->state(fn(Model $record, TranslationStateStore $states, TranslationLocales $locales): array => $this->summary($record, $states, $locales))
             ->formatStateUsing(static fn(string $state): string => strtoupper(self::localeOf($state)) . ' · ' . Lang::get('status.' . self::statusOf($state)))

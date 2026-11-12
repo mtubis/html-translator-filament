@@ -36,6 +36,12 @@ final class HtmlTranslatorPlugin implements Plugin
 
     private bool $queue = false;
 
+    private ?string $queueConnection = null;
+
+    private ?string $queueName = null;
+
+    private ?int $rateLimit = null;
+
     public static function make(): self
     {
         return new self();
@@ -67,7 +73,14 @@ final class HtmlTranslatorPlugin implements Plugin
     public function register(Panel $panel): void
     {
         app(TranslationLocales::class)->configure($this->getSourceLocale(), $this->getTargetLocales());
-        app(TranslationDefaults::class)->configure($this->profile, $this->provider);
+        app(TranslationDefaults::class)->configure(
+            $this->profile,
+            $this->provider,
+            $this->queue,
+            $this->queueConnection,
+            $this->queueName,
+            $this->rateLimit,
+        );
     }
 
     public function boot(Panel $panel): void {}
@@ -113,9 +126,25 @@ final class HtmlTranslatorPlugin implements Plugin
         return $this;
     }
 
-    public function queue(bool $queue = true): self
+    /**
+     * Translate in queued jobs; the editor gets a database notification when they finish (enable
+     * `->databaseNotifications()` on the panel and run a queue worker).
+     */
+    public function queue(bool $queue = true, ?string $connection = null, ?string $queueName = null): self
     {
         $this->queue = $queue;
+        $this->queueConnection = $connection;
+        $this->queueName = $queueName;
+
+        return $this;
+    }
+
+    /**
+     * At most this many translation jobs per minute, to stay under the provider's limits.
+     */
+    public function rateLimit(?int $jobsPerMinute): self
+    {
+        $this->rateLimit = $jobsPerMinute;
 
         return $this;
     }

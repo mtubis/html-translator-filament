@@ -16,6 +16,7 @@ use HtmlTranslator\Filament\Tables\Columns\TranslationStatusColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Workbench\App\Filament\Resources\Posts\Pages\EditPost;
 use Workbench\App\Filament\Resources\Posts\Pages\ListPosts;
+use Workbench\App\Filament\Resources\Posts\RelationManagers\CommentsRelationManager;
 use Workbench\App\Models\Post;
 
 /**
@@ -48,6 +49,11 @@ final class PostResource extends Resource
             ->toolbarActions([
                 TranslateBulkAction::make(),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [CommentsRelationManager::class];
     }
 
     public static function getPages(): array
