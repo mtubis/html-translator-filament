@@ -1,0 +1,14 @@
+parameters:
+    level: max
+    paths:
+        - src
+        - tests
+        - workbench/app
+        - workbench/database
+    tmpDir: var/phpstan
+    checkUninitializedProperties: true
+    checkImplicitMixed: true
+    checkBenevolentUnionTypes: true
+    reportPossiblyNonexistentGeneralArrayOffset: true
+    reportAnyTypeWideningInVarTag: true
+    treatPhpDocTypesAsCertain: false

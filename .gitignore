@@ -1,5 +1,12 @@
-/vendor
-/node_modules
-/.phpunit.cache
-composer.lock
+/vendor/
+/var/
+/.phpunit.cache/
+/composer.lock
+/.env
+/.env.*
+/.claude/settings.local.json
+/workbench/bootstrap/cache/*
+!/workbench/bootstrap/cache/.gitkeep
+/workbench/storage/
+/workbench/.env
 .DS_Store

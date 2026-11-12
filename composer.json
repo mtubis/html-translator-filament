@@ -1,0 +1,85 @@
+{
+    "name": "mtubis/html-translator-filament",
+    "description": "Filament v5 plugin for markup-safe AI translation of translatable models, built on html-translator-laravel.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "filament",
+        "filament-plugin",
+        "laravel",
+        "translation",
+        "llm",
+        "html",
+        "spatie-translatable"
+    ],
+    "authors": [
+        {
+            "name": "Magdalena Tubis"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "filament/filament": "^5.0",
+        "mtubis/html-translator-laravel": "^0.2"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.13",
+        "laravel/pint": "^1.32",
+        "orchestra/testbench": "^11.3",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-phpunit": "^2.1",
+        "phpstan/phpstan-strict-rules": "^2.1",
+        "phpunit/phpunit": "^13.4.4",
+        "rector/rector": "^2.7",
+        "spatie/laravel-translatable": "^6.15"
+    },
+    "suggest": {
+        "spatie/laravel-translatable": "The first supported storage for translations (^6)."
+    },
+    "autoload": {
+        "psr-4": {
+            "HtmlTranslator\\Filament\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "HtmlTranslator\\Filament\\Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test:unit": "phpunit --testsuite unit",
+        "test:feature": "phpunit --testsuite feature",
+        "stan": "phpstan analyse --no-progress --memory-limit=1G",
+        "pint": "pint --test",
+        "lint": "pint",
+        "rector": "rector process --dry-run",
+        "rector:fix": "rector process",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php vendor/bin/testbench workbench:build --ansi",
+            "@php vendor/bin/testbench serve --ansi"
+        ],
+        "check": [
+            "@pint",
+            "@rector",
+            "@stan",
+            "@test"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "HtmlTranslator\\Filament\\HtmlTranslatorFilamentServiceProvider"
+            ]
+        }
+    }
+}

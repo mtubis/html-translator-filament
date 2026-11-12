@@ -1,0 +1,20 @@
+laravel: '@testbench'
+
+providers:
+  - HtmlTranslator\Filament\HtmlTranslatorFilamentServiceProvider
+  - Workbench\App\Providers\WorkbenchServiceProvider
+  - Workbench\App\Providers\AdminPanelProvider
+
+env:
+  - HTML_TRANSLATOR_PROVIDER=pseudo
+  - CACHE_STORE=array
+
+workbench:
+  start: '/admin'
+  install: true
+  discovers:
+    web: false
+    commands: false
+  build: []
+  assets: []
+  sync: []
