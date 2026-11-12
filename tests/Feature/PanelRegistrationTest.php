@@ -7,6 +7,7 @@ namespace HtmlTranslator\Filament\Tests\Feature;
 use Filament\Facades\Filament;
 use HtmlTranslator\Filament\HtmlTranslatorFilamentServiceProvider;
 use HtmlTranslator\Filament\HtmlTranslatorPlugin;
+use HtmlTranslator\Filament\Support\TranslationLocales;
 use HtmlTranslator\Filament\Tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -14,6 +15,7 @@ use Workbench\App\Models\Post;
 
 #[CoversClass(HtmlTranslatorPlugin::class)]
 #[CoversClass(HtmlTranslatorFilamentServiceProvider::class)]
+#[CoversClass(TranslationLocales::class)]
 final class PanelRegistrationTest extends TestCase
 {
     #[Test]
@@ -25,6 +27,15 @@ final class PanelRegistrationTest extends TestCase
 
         self::assertSame('es', $plugin->getSourceLocale());
         self::assertSame(['en'], $plugin->getTargetLocales());
+    }
+
+    #[Test]
+    public function registering_the_plugin_publishes_its_locales_for_models_and_jobs(): void
+    {
+        $locales = resolve(TranslationLocales::class);
+
+        self::assertSame('es', $locales->source());
+        self::assertSame(['en'], $locales->targets());
     }
 
     #[Test]

@@ -12,3 +12,7 @@ parameters:
     reportPossiblyNonexistentGeneralArrayOffset: true
     reportAnyTypeWideningInVarTag: true
     treatPhpDocTypesAsCertain: false
+    strictRules:
+        # Eloquent's fluent builder (where(), first(), exists()) is declared static in Larastan's stubs, so every
+        # query would be reported as a "dynamic call to a static method". The rest of strict-rules stays on.
+        dynamicCallOnStaticMethod: false

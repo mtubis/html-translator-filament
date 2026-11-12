@@ -10,4 +10,10 @@ All notable changes to this project are documented here. The format follows
   queue), service provider with `en`/`es` translations, `InvalidPluginConfigurationException`.
 - Testbench workbench with a Filament panel and a translatable `Post` fixture; Pint, Rector, PHPStan (max) and
   PHPUnit via `composer check`; GitHub Actions CI.
+- Translation states: publishable `translation_states` migration (a no-op when the table exists),
+  `TranslationStatus` enum with Filament labels/colours, `TranslationState` model with stale detection,
+  `TracksTranslations` contract and `HasTranslationStates` trait, an observer creating `missing` states for new source
+  texts, and the `TranslationStateStore` contract with an Eloquent implementation.
+- `HtmlTranslatorPlugin::register()` publishes the locales (`TranslationLocales`) for models, observers and jobs;
+  panels must agree on them.
 - Mutation testing (Infection, as in html-translator-laravel) is planned once there is logic worth mutating.

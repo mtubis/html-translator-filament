@@ -30,6 +30,43 @@ $panel->plugin(
 );
 ```
 
+## Translation states
+The plugin tracks one state per record, attribute and target locale: `missing`, `machine` or `reviewed`. A
+translation is *stale* when its source text changed after it was made. Being stale is derived, never stored, so a
+reviewed translation is never downgraded.
+
+1. Publish and run the migration. An existing `translation_states` table with the same schema is left alone.
+
+   ```bash
+   php artisan vendor:publish --tag=html-translator-filament-migrations
+   php artisan migrate
+   ```
+
+2. Let your translatable models track their states:
+
+   ```php
+   use HtmlTranslator\Filament\Contracts\TracksTranslations;
+   use HtmlTranslator\Filament\Models\Concerns\HasTranslationStates;
+   use Spatie\Translatable\HasTranslations;
+
+   final class Post extends Model implements TracksTranslations
+   {
+       use HasTranslations;
+       use HasTranslationStates;
+
+       public array $translatable = ['title', 'body'];
+   }
+   ```
+
+   Saving a source text creates `missing` states for every target locale of the plugin. Deleting the record removes
+   its states. Records removed by a database cascade fire no model events: call
+   `TranslationStateStore::deleteFor($morphType, $ids)` for them.
+
+3. Recommended: `Relation::enforceMorphMap([...])`, so the table stores short, stable types instead of class names.
+
+`HtmlTranslator\Filament\Contracts\TranslationStateStore` is the API for reading and writing states. Bind your own
+implementation to keep them elsewhere.
+
 ## Development
 See [CONTRIBUTING.md](CONTRIBUTING.md). `composer check` runs Pint, Rector, PHPStan and PHPUnit. `composer serve`
 starts the workbench panel.

@@ -38,6 +38,15 @@ abstract class TestCase extends Orchestra
     use WithWorkbench;
 
     /**
+     * Laravel's `users` table (target of `reviewed_by`) and the plugin's own migration, which apps publish.
+     */
+    protected function defineDatabaseMigrations(): void
+    {
+        $this->loadLaravelMigrations();
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+    }
+
+    /**
      * @param Application $app
      *
      * @return list<class-string>

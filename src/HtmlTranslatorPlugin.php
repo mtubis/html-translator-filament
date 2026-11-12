@@ -7,6 +7,7 @@ namespace HtmlTranslator\Filament;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use HtmlTranslator\Filament\Exceptions\InvalidPluginConfigurationException;
+use HtmlTranslator\Filament\Support\TranslationLocales;
 use LogicException;
 
 /**
@@ -58,7 +59,14 @@ final class HtmlTranslatorPlugin implements Plugin
         return self::ID;
     }
 
-    public function register(Panel $panel): void {}
+    /**
+     * Publishes the locales to the container, so models, observers and jobs know them outside panel requests too.
+     * Filament calls this as soon as the plugin is added to a panel.
+     */
+    public function register(Panel $panel): void
+    {
+        app(TranslationLocales::class)->configure($this->getSourceLocale(), $this->getTargetLocales());
+    }
 
     public function boot(Panel $panel): void {}
 

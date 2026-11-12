@@ -35,6 +35,26 @@ final class InvalidPluginConfigurationException extends InvalidArgumentException
         return new self(\sprintf('html-translator: "%s" is not a valid locale; use codes such as "es" or "pt-BR".', $locale));
     }
 
+    /**
+     * @param list<string> $targets
+     * @param list<string> $otherTargets
+     */
+    public static function panelsDisagree(string $source, array $targets, string $otherSource, array $otherTargets): self
+    {
+        return new self(\sprintf(
+            'html-translator: every panel must use the same locales (%s → %s, got %s → %s).',
+            $source,
+            implode(', ', $targets),
+            $otherSource,
+            implode(', ', $otherTargets),
+        ));
+    }
+
+    public static function notRegistered(): self
+    {
+        return new self('html-translator: register HtmlTranslatorPlugin on a Filament panel before translating.');
+    }
+
     public static function duplicateLocale(string $locale): self
     {
         return new self(\sprintf('html-translator: the locale "%s" is listed twice.', $locale));
