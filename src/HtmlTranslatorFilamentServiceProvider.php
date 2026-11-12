@@ -6,6 +6,7 @@ namespace HtmlTranslator\Filament;
 
 use HtmlTranslator\Filament\Contracts\TranslationStateStore;
 use HtmlTranslator\Filament\Stores\EloquentTranslationStateStore;
+use HtmlTranslator\Filament\Support\TranslationDefaults;
 use HtmlTranslator\Filament\Support\TranslationLocales;
 use Illuminate\Support\ServiceProvider;
 
@@ -18,6 +19,7 @@ final class HtmlTranslatorFilamentServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(TranslationLocales::class);
+        $this->app->singleton(TranslationDefaults::class);
         // Bound with singletonIf so an application's own store, registered earlier, wins.
         $this->app->singletonIf(TranslationStateStore::class, EloquentTranslationStateStore::class);
     }

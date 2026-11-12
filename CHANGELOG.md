@@ -16,4 +16,9 @@ All notable changes to this project are documented here. The format follows
   texts, and the `TranslationStateStore` contract with an Eloquent implementation.
 - `HtmlTranslatorPlugin::register()` publishes the locales (`TranslationLocales`) for models, observers and jobs;
   panels must agree on them.
+- `TranslateRecord`: translates a record (and opt-in relations) into a target locale. HTML vs plain-text attributes
+  (`$htmlTranslatable`), overwrite policies (`OnlyMissing`, `OverwriteMachine`, `Force`), complete results only, one
+  transaction after the model calls, and a `TranslationReport` with outcomes and summed stats.
+- `TranslationDefaults` (profile/provider published by the plugin); `TracksTranslations` gains
+  `getHtmlTranslatableAttributes()` and `setTranslation()`; `TranslationStateStore::status()`.
 - Mutation testing (Infection, as in html-translator-laravel) is planned once there is logic worth mutating.

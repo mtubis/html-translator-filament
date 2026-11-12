@@ -22,9 +22,21 @@ interface TracksTranslations
     public function getTranslation(string $key, string $locale, bool $useFallbackLocale = true): mixed;
 
     /**
+     * @param mixed $value
+     */
+    public function setTranslation(string $key, string $locale, $value): self;
+
+    /**
      * @return array<int, string>
      */
     public function getTranslatableAttributes(): array;
+
+    /**
+     * Translatable attributes that hold HTML; the others are sent to the translator as plain text.
+     *
+     * @return list<string>
+     */
+    public function getHtmlTranslatableAttributes(): array;
 
     /**
      * @return MorphMany<TranslationState, covariant Model>

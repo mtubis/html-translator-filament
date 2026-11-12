@@ -7,6 +7,7 @@ namespace HtmlTranslator\Filament;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use HtmlTranslator\Filament\Exceptions\InvalidPluginConfigurationException;
+use HtmlTranslator\Filament\Support\TranslationDefaults;
 use HtmlTranslator\Filament\Support\TranslationLocales;
 use LogicException;
 
@@ -66,6 +67,7 @@ final class HtmlTranslatorPlugin implements Plugin
     public function register(Panel $panel): void
     {
         app(TranslationLocales::class)->configure($this->getSourceLocale(), $this->getTargetLocales());
+        app(TranslationDefaults::class)->configure($this->profile, $this->provider);
     }
 
     public function boot(Panel $panel): void {}

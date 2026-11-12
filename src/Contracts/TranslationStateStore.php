@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace HtmlTranslator\Filament\Contracts;
 
+use HtmlTranslator\Filament\Enums\TranslationStatus;
 use HtmlTranslator\Filament\Models\TranslationState;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -25,6 +26,11 @@ interface TranslationStateStore
      * @param list<string> $attributes
      */
     public function ensureMissing(Model&TracksTranslations $record, array $attributes): void;
+
+    /**
+     * The status of one attribute in one locale; null when no state exists yet.
+     */
+    public function status(Model&TracksTranslations $record, string $attribute, string $locale): ?TranslationStatus;
 
     public function markMachine(
         Model&TracksTranslations $record,

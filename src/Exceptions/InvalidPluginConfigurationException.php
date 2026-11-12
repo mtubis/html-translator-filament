@@ -50,6 +50,18 @@ final class InvalidPluginConfigurationException extends InvalidArgumentException
         ));
     }
 
+    /**
+     * @param list<string> $targets
+     */
+    public static function notATargetLocale(string $locale, array $targets): self
+    {
+        return new self(\sprintf(
+            'html-translator: "%s" is not a target locale of the plugin (%s).',
+            $locale,
+            $targets === [] ? 'none configured' : implode(', ', $targets),
+        ));
+    }
+
     public static function notRegistered(): self
     {
         return new self('html-translator: register HtmlTranslatorPlugin on a Filament panel before translating.');

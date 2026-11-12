@@ -67,6 +67,31 @@ reviewed translation is never downgraded.
 `HtmlTranslator\Filament\Contracts\TranslationStateStore` is the API for reading and writing states. Bind your own
 implementation to keep them elsewhere.
 
+## Translating a record
+`TranslateRecord` translates the source-locale values of a record, and of the relations you name, into one target
+locale. It writes the results and marks their states `machine`:
+
+```php
+use HtmlTranslator\Filament\Enums\OverwritePolicy;
+use HtmlTranslator\Filament\Translation\TranslateRecord;
+
+$report = app(TranslateRecord::class)($post, 'en', OverwritePolicy::OnlyMissing, relations: ['comments']);
+
+$report->translated(); $report->skipped(); $report->incomplete(); $report->failed();
+$report->stats();      // units, batches, input/output tokens, cache hits
+$report->outcomes();   // per attribute: status, reason, issues
+```
+
+- **Overwrite policies:** `OnlyMissing` (default) translates only what has no translation yet. `OverwriteMachine`
+  also replaces machine translations. `Force` also replaces reviewed ones; choose it explicitly.
+- **HTML attributes must be declared** on the model: `protected array $htmlTranslatable = ['body'];`. Every other
+  translatable attribute is sent as plain text (escaped), so markup in an undeclared attribute would come back as
+  text.
+- Incomplete or failed attributes keep their previous value and are reported. Model calls happen before the database
+  transaction.
+- The profile and provider come from the plugin (`->profile()`, `->provider()`); `null` uses the
+  html-translator-laravel defaults.
+
 ## Development
 See [CONTRIBUTING.md](CONTRIBUTING.md). `composer check` runs Pint, Rector, PHPStan and PHPUnit. `composer serve`
 starts the workbench panel.

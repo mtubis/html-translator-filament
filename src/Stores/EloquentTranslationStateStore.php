@@ -34,6 +34,15 @@ final readonly class EloquentTranslationStateStore implements TranslationStateSt
         }
     }
 
+    public function status(Model&TracksTranslations $record, string $attribute, string $locale): ?TranslationStatus
+    {
+        return $record->translationStates()
+            ->where('attribute', $attribute)
+            ->where('locale', $locale)
+            ->first()
+            ?->status;
+    }
+
     public function markMachine(
         Model&TracksTranslations $record,
         string $attribute,

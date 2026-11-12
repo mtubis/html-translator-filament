@@ -31,6 +31,19 @@ trait HasTranslationStates
         return $this->morphMany(TranslationState::class, 'translatable');
     }
 
+    /**
+     * Declare HTML attributes on the model: `protected array $htmlTranslatable = ['body'];`. Undeclared attributes
+     * are translated as plain text (escaped), so markup in them would be shown as text.
+     *
+     * @return list<string>
+     */
+    public function getHtmlTranslatableAttributes(): array
+    {
+        $attributes = property_exists($this, 'htmlTranslatable') ? $this->htmlTranslatable : [];
+
+        return \is_array($attributes) ? array_values(array_filter($attributes, \is_string(...))) : [];
+    }
+
     public function translationState(string $attribute, string $locale): ?TranslationState
     {
         return $this->translationStates()

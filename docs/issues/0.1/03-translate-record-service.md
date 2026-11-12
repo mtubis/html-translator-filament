@@ -9,7 +9,8 @@ public API. The states come from #2. Filament code (#4) calls this service and c
   - Records are spatie-translatable models in 0.1. Relations to translate together are configured per
     resource/action (`->withRelations(['items'])`), never guessed.
 - Attribute kinds:
-  - HTML attributes are declared by the app (e.g. `->html(['body'])`) and sent as HTML;
+  - HTML attributes are declared on the model (`protected array $htmlTranslatable = ['body']`), so actions, jobs and
+    the field action share one declaration; they are sent as HTML;
   - all other translatable attributes are escaped (`e()`) before sending and decoded after, so `<`/`&` in a title can
     never become markup;
   - empty sources are skipped.
