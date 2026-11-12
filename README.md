@@ -92,6 +92,42 @@ $report->outcomes();   // per attribute: status, reason, issues
 - The profile and provider come from the plugin (`->profile()`, `->provider()`); `null` uses the
   html-translator-laravel defaults.
 
+## Filament actions and column
+```php
+use HtmlTranslator\Filament\Actions\MarkTranslationReviewedAction;
+use HtmlTranslator\Filament\Actions\TranslateBulkAction;
+use HtmlTranslator\Filament\Actions\TranslateRecordAction;
+use HtmlTranslator\Filament\Tables\Columns\TranslationStatusColumn;
+
+// Edit page header
+protected function getHeaderActions(): array
+{
+    return [
+        TranslateRecordAction::make()->relations(['comments']),
+        MarkTranslationReviewedAction::make()->relations(['comments']),
+    ];
+}
+
+// Table
+$table
+    ->modifyQueryUsing(fn ($query) => $query->with('translationStates'))   // one query for every row's badges
+    ->columns([TranslationStatusColumn::make()])
+    ->recordActions([MarkTranslationReviewedAction::make()])
+    ->toolbarActions([TranslateBulkAction::make()]);
+```
+
+- **`TranslateRecordAction`** asks for the target locale and the overwrite policy. `Force` needs an explicit
+  confirmation. It reports counts, token usage and issues in a notification, and refreshes the form when the page
+  edits the translated locale.
+- **`MarkTranslationReviewedAction`** marks the machine translations of the edited locale as reviewed, with the
+  current user as reviewer. Editing a translation by hand does not review it.
+- **`TranslationStatusColumn`** shows one badge per target locale: not translated, machine, stale or reviewed.
+- **Active locale:** pages and relation managers with a public `activeLocale` property (like those of
+  `lara-zeus/spatie-translatable`) tell the actions which locale is being edited. The actions are hidden while the
+  source locale is edited. Without the property, the first target locale is used.
+- Notifications contain only counts, usage and the translator's issue messages, never prompt text, translations or
+  keys. Labels come from `lang/{en,es}`; override them in `lang/vendor/html-translator-filament`.
+
 ## Development
 See [CONTRIBUTING.md](CONTRIBUTING.md). `composer check` runs Pint, Rector, PHPStan and PHPUnit. `composer serve`
 starts the workbench panel.

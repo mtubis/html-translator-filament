@@ -49,6 +49,13 @@ interface TranslationStateStore
     ): TranslationState;
 
     /**
+     * Marks every `machine` state of the record in the locale as reviewed; other states are left alone.
+     *
+     * @return int the number of states marked
+     */
+    public function markReviewedAll(Model&TracksTranslations $record, string $locale, ?int $reviewerId): int;
+
+    /**
      * True when the source text changed after the translation was made. `missing` states are never stale.
      */
     public function isStale(TranslationState $state): bool;

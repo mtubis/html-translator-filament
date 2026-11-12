@@ -7,6 +7,7 @@ namespace Workbench\App\Providers;
 use Filament\Panel;
 use Filament\PanelProvider;
 use HtmlTranslator\Filament\HtmlTranslatorPlugin;
+use Workbench\App\Filament\Resources\Posts\PostResource;
 
 /**
  * The panel the plugin is developed and tested against: Spanish source, English target.
@@ -19,6 +20,7 @@ final class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->resources([PostResource::class])
             ->plugin(
                 HtmlTranslatorPlugin::make()
                     ->sourceLocale('es')

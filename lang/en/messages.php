@@ -8,5 +8,36 @@ return [
         'missing' => 'Not translated',
         'machine' => 'Machine',
         'reviewed' => 'Reviewed',
+        'stale' => 'Stale',
+    ],
+    'actions' => [
+        'translate' => [
+            'label' => 'Generate draft translation',
+            'heading' => 'Generate a draft from the source text',
+            'description' => 'Machine translations are drafts: review them before publishing.',
+            'locale' => 'Target language',
+            'policy' => 'What to translate',
+            'policies' => [
+                'only_missing' => 'Only what is not translated yet',
+                'overwrite_machine' => 'Also replace machine translations',
+                'force' => 'Also replace reviewed translations',
+            ],
+            'confirm_force' => 'I understand that reviewed translations will be replaced',
+        ],
+        'review' => [
+            'label' => 'Mark as reviewed',
+            'heading' => 'Mark the machine translations as reviewed?',
+            'done' => ':count translation(s) marked as reviewed.',
+        ],
+        'bulk' => [
+            'label' => 'Generate draft translations',
+        ],
+    ],
+    'notifications' => [
+        'translated' => 'Draft translation ready',
+        'translated_with_problems' => 'Draft translation finished with problems',
+        'counts' => 'Translated: :translated · Skipped: :skipped · Incomplete: :incomplete · Failed: :failed',
+        'usage' => ':tokens tokens, :cache_hits from cache.',
+        'issues' => 'Issues:',
     ],
 ];

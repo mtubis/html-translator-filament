@@ -22,6 +22,21 @@ final readonly class TranslationReport
     ) {}
 
     /**
+     * One report for several runs, e.g. a bulk action.
+     */
+    public static function merge(self ...$reports): self
+    {
+        $outcomes = [];
+        $stats = [];
+        foreach ($reports as $report) {
+            $outcomes = [...$outcomes, ...$report->outcomes];
+            $stats = [...$stats, ...$report->stats];
+        }
+
+        return new self($outcomes, $stats);
+    }
+
+    /**
      * @return list<AttributeOutcome>
      */
     public function outcomes(): array

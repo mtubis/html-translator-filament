@@ -11,7 +11,8 @@
   - it refreshes the form in the active locale afterwards.
 - `MarkTranslationReviewedAction`:
   - turns `machine` states of the record (and configured relations) in the active locale into `reviewed`, with
-    `reviewed_at`/`reviewed_by`;
+    `reviewed_at`/`reviewed_by`. Only the id is stored; a `reviewer()` relation needs the app's user model and waits
+    until something displays reviewers (the 0.2 "Translations" page);
   - there is also a record action for relation managers.
   - Editing a target by hand does not change its state, because review is explicit.
 - `TranslationStatusColumn`: one badge per target locale (`missing` / `machine` / `reviewed` / `stale`), with

@@ -21,4 +21,10 @@ All notable changes to this project are documented here. The format follows
   transaction after the model calls, and a `TranslationReport` with outcomes and summed stats.
 - `TranslationDefaults` (profile/provider published by the plugin); `TracksTranslations` gains
   `getHtmlTranslatableAttributes()` and `setTranslation()`; `TranslationStateStore::status()`.
+- Filament layer: `TranslateRecordAction` (locale + overwrite policy, confirmation for `Force`, report
+  notification, form refresh), `MarkTranslationReviewedAction` (page and table), `TranslateBulkAction` (synchronous
+  for now), `TranslationStatusColumn` (missing / machine / stale / reviewed per target locale), `ReportNotification`,
+  and English/Spanish UI strings.
+- `TranslationStateStore::markReviewedAll()`, `TranslationReport::merge()`, `Support\ActiveLocale` (reads a public
+  `activeLocale`, as on lara-zeus/spatie-translatable pages).
 - Mutation testing (Infection, as in html-translator-laravel) is planned once there is logic worth mutating.

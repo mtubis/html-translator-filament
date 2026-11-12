@@ -24,6 +24,7 @@ use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase as Orchestra;
 use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
 use Spatie\Translatable\TranslatableServiceProvider;
+use Workbench\App\Models\User;
 use Workbench\App\Providers\AdminPanelProvider;
 use Workbench\App\Providers\WorkbenchServiceProvider;
 
@@ -36,6 +37,14 @@ abstract class TestCase extends Orchestra
 {
     use RefreshDatabase;
     use WithWorkbench;
+
+    /**
+     * @param Application $app
+     */
+    protected function defineEnvironment($app): void
+    {
+        $app['config']->set('auth.providers.users.model', User::class);
+    }
 
     /**
      * Laravel's `users` table (target of `reviewed_by`) and the plugin's own migration, which apps publish.

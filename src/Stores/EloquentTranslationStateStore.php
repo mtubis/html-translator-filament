@@ -79,6 +79,18 @@ final readonly class EloquentTranslationStateStore implements TranslationStateSt
         return $state;
     }
 
+    public function markReviewedAll(Model&TracksTranslations $record, string $locale, ?int $reviewerId): int
+    {
+        return $record->translationStates()
+            ->where('locale', $locale)
+            ->where('status', TranslationStatus::Machine->value)
+            ->update([
+                'status' => TranslationStatus::Reviewed->value,
+                'reviewed_at' => Carbon::now(),
+                'reviewed_by' => $reviewerId,
+            ]);
+    }
+
     public function isStale(TranslationState $state): bool
     {
         return $state->isStale($this->locales->source());
