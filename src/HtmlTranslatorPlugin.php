@@ -44,7 +44,7 @@ final class HtmlTranslatorPlugin implements Plugin
      */
     public static function get(): self
     {
-        $plugin = \filament(self::ID);
+        $plugin = filament(self::ID);
 
         if (! $plugin instanceof self) {
             throw new LogicException('html-translator: the plugin is not registered on the current Filament panel.');
@@ -142,7 +142,7 @@ final class HtmlTranslatorPlugin implements Plugin
     {
         $source = $this->getSourceLocale();
 
-        return \array_values(\array_filter($this->locales, static fn(string $locale): bool => $locale !== $source));
+        return array_values(array_filter($this->locales, static fn(string $locale): bool => $locale !== $source));
     }
 
     public function getProfile(): ?string
@@ -162,7 +162,7 @@ final class HtmlTranslatorPlugin implements Plugin
 
     private function validLocale(string $locale): string
     {
-        $trimmed = \trim($locale);
+        $trimmed = trim($locale);
         if ($trimmed === '' || $trimmed !== $locale) {
             throw InvalidPluginConfigurationException::invalidLocale($locale);
         }

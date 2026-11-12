@@ -26,7 +26,7 @@ final class InvalidPluginConfigurationException extends InvalidArgumentException
         return new self(\sprintf(
             'html-translator: the source locale "%s" is not one of the locales (%s).',
             $source,
-            \implode(', ', $locales),
+            implode(', ', $locales),
         ));
     }
 
