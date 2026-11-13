@@ -7,7 +7,10 @@ While the version is 0.x, a minor version may change the public API; this file s
 ## [Unreleased]
 
 ### Added
-- German interface translation (`lang/de`), reviewed by a fluent speaker (#4).
+- German (`lang/de`) and Polish (`lang/pl`) interface translations, reviewed by speakers of both languages (#4).
+- Plural forms for texts with a count ("1 translation marked as reviewed" / "2 translations …"), including Polish's
+  three forms.
+- README: **Interface languages**, how to change a text or add a language.
 - A test that every interface language has the English keys and placeholders.
 - README: **Translating in the panel (for editors)**, a step-by-step guide for the people who translate and review
   content: states and badges, translating a record, a field or many records, reviewing, stale translations.

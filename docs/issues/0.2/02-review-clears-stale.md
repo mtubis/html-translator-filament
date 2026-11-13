@@ -36,7 +36,8 @@ as a known limitation of 0.1.
   checked the previous version. Show both, e.g. `EN · Reviewed` next to `EN · Stale` (or one badge
   `EN · Reviewed · Stale`, whichever reads better in Filament), and the same for a stale machine draft.
 - **Tooltip with the reason** on a stale badge: "The source text changed after the last translation." (German:
-  "Der Ausgangstext wurde seit der letzten Übersetzung geändert."), a new key in every shipped language.
+  "Der Ausgangstext wurde seit der letzten Übersetzung geändert.", Polish: "Tekst źródłowy zmienił się od
+  ostatniego tłumaczenia."), a new key in every shipped language.
 - README: remove the *Known limitation (0.1)* note from the editor guide; "When the source text changes" describes
   both ways: a new AI draft, or a correction by hand, followed by **Mark as reviewed**.
 

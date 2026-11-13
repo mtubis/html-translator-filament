@@ -27,7 +27,7 @@ return [
         'review' => [
             'label' => 'Marcar como revisada',
             'heading' => '¿Marcar las traducciones automáticas como revisadas?',
-            'done' => ':count traducción(es) marcada(s) como revisada(s).',
+            'done' => ':count traducción marcada como revisada.|:count traducciones marcadas como revisadas.',
         ],
         'field' => [
             'label' => 'Traducir',

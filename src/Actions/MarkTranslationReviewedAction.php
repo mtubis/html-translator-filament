@@ -64,7 +64,7 @@ final class MarkTranslationReviewedAction extends Action
                 }
 
                 Notification::make()
-                    ->title(Lang::get('actions.review.done', ['count' => $count]))
+                    ->title(Lang::choice('actions.review.done', $count))
                     ->success()
                     ->send();
             });

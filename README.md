@@ -15,8 +15,8 @@ actions, a review workflow (`machine` → `reviewed`) and stale-translation dete
 This section is for the people who write and translate content in a Filament panel where the plugin is installed.
 Developers: the setup starts at [Requirements](#requirements).
 
-Labels below are the plugin's English ones; a panel in Spanish shows the Spanish ones, and an application may rename
-them.
+Labels below are the plugin's English ones. The panel shows them in its own language when the plugin has it
+([interface languages](#interface-languages)), and an application may rename them.
 
 ### The idea
 - Content is written in one **source language**. The plugin translates it into the **target languages** with an AI
@@ -273,7 +273,7 @@ $table
   `lara-zeus/spatie-translatable`) tell the actions which locale is being edited. The actions are hidden while the
   source locale is edited. Without the property, the first target locale is used.
 - Notifications contain only counts, usage and the translator's issue messages, never prompt text, translations or
-  keys. Labels come from `lang/{en,es}`; override them in `lang/vendor/html-translator-filament`.
+  keys. Labels follow the application locale, see [Interface languages](#interface-languages).
 
 ## Field action
 Re-translate a single field without touching the others:
@@ -357,6 +357,35 @@ argument when it is not your `QUEUE_CONNECTION` (`php artisan queue:work redis -
   editor with a generic message; exception details stay in the logs.
 - Relation managers that show translations should `use HtmlTranslator\Filament\Concerns\RefreshesAfterTranslation;`,
   so their badges refresh after a synchronous translate action on the page.
+
+## Interface languages
+The plugin's buttons, forms, states and notifications follow the application locale (`app()->getLocale()`), like
+Filament's own texts. Shipped languages:
+
+| Locale | Language |
+|---|---|
+| `en` | English |
+| `es` | Spanish |
+| `de` | German |
+| `pl` | Polish |
+
+Planned: French, then Ukrainian and Chinese (Mandarin, `zh_CN`). A locale without a file falls back to English
+(Laravel's `fallback_locale`, when it is `en`).
+
+**Change a text or add a language** in your application, without touching the package:
+
+```bash
+php artisan lang:publish   # once, if the application has no lang/ directory yet
+mkdir -p lang/vendor/html-translator-filament/fr
+cp vendor/mtubis/html-translator-filament/lang/en/messages.php lang/vendor/html-translator-filament/fr/messages.php
+```
+
+Then translate the values (keep the keys and the `:placeholders`). A file there may also contain only the keys you
+want to change. Texts with a count have plural forms separated by `|`: `one|other` in most languages, three forms
+in Polish (`1 | 2–4 | 5+`).
+
+New languages for the package itself are welcome as pull requests; a test checks that every language file has the
+English keys and placeholders.
 
 ## Development
 See [CONTRIBUTING.md](CONTRIBUTING.md). `composer check` runs Pint, Rector, PHPStan and PHPUnit. `composer serve`

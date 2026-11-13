@@ -30,7 +30,7 @@ return [
         'review' => [
             'label' => 'Als geprüft markieren',
             'heading' => 'Übersetzungsentwürfe als geprüft markieren?',
-            'done' => ':count Übersetzung(en) als geprüft markiert.',
+            'done' => ':count Übersetzung als geprüft markiert.|:count Übersetzungen als geprüft markiert.',
         ],
         'field' => [
             'label' => 'Übersetzen',

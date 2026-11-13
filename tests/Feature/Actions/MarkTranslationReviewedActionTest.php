@@ -12,6 +12,7 @@ use HtmlTranslator\Filament\Enums\TranslationStatus;
 use HtmlTranslator\Filament\Models\TranslationState;
 use HtmlTranslator\Filament\Stores\EloquentTranslationStateStore;
 use HtmlTranslator\Filament\Tests\TestCase;
+use Illuminate\Support\Facades\App;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -47,6 +48,24 @@ final class MarkTranslationReviewedActionTest extends TestCase
         self::assertSame(TranslationStatus::Reviewed, $comment->translationState('text', 'en')?->status);
         self::assertSame(TranslationStatus::Missing, $post->translationState('body', 'en')?->status);
         Notification::assertNotified();
+    }
+
+    #[Test]
+    public function it_speaks_the_application_locale_with_plural_forms(): void
+    {
+        App::setLocale('pl');
+        $this->actingAs(User::factory()->create());
+        $post = Post::factory()->create();
+        $store = resolve(TranslationStateStore::class);
+        $store->markMachine($post, 'title', 'en', 'Clases de inglés', null, null);
+        $store->markMachine($post, 'body', 'en', '<p>Con una sonrisa</p>', null, null);
+
+        Livewire::test(EditPost::class, ['record' => $post->getRouteKey()])
+            ->set('activeLocale', 'en')
+            ->assertActionHasLabel(TestAction::make('markTranslationReviewed'), 'Oznacz jako sprawdzone')
+            ->callAction(TestAction::make('markTranslationReviewed'));
+
+        Notification::assertNotified('Oznaczono 2 tłumaczenia jako sprawdzone.');
     }
 
     #[Test]

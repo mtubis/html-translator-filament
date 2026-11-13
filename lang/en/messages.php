@@ -27,7 +27,7 @@ return [
         'review' => [
             'label' => 'Mark as reviewed',
             'heading' => 'Mark the machine translations as reviewed?',
-            'done' => ':count translation(s) marked as reviewed.',
+            'done' => ':count translation marked as reviewed.|:count translations marked as reviewed.',
         ],
         'field' => [
             'label' => 'Translate',

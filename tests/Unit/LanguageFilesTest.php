@@ -86,7 +86,8 @@ final class LanguageFilesTest extends TestCase
     private function placeholders(string $text): array
     {
         preg_match_all('/:[a-z_]+/', $text, $matches);
-        $found = $matches[0];
+        // A set: plural texts repeat a placeholder once per form, and Polish has one form more than English.
+        $found = array_values(array_unique($matches[0]));
         sort($found);
 
         return $found;
