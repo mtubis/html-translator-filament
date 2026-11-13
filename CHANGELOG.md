@@ -7,6 +7,8 @@ While the version is 0.x, a minor version may change the public API; this file s
 ## [Unreleased]
 
 ### Added
+- German interface translation (`lang/de`), reviewed by a fluent speaker (#4).
+- A test that every interface language has the English keys and placeholders.
 - README: **Translating in the panel (for editors)**, a step-by-step guide for the people who translate and review
   content: states and badges, translating a record, a field or many records, reviewing, stale translations.
 
