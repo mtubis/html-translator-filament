@@ -63,11 +63,13 @@ TranslationStatusColumn::make()       // badge per locale: missing | machine | r
   5. queue + notifications;
   6. field action.
 - **0.2**: Artisan commands `html-translator-filament:translate` and `:mark-reviewed`; reviewing a stale translation
-  clears "Stale" (`docs/issues/0.2/`).
+  clears "Stale"; Polish and German interface translations (`docs/issues/0.2/`).
 - **0.3**: show a queued translation without reloading the edit page: polling while a job runs, a button in the
   notification (`docs/issues/0.3/`).
 - **0.4**: "Translations" page (issues, token usage, stale), an action form with provider / profile / target locales,
   side-by-side diff.
+- **Interface languages after 0.2:** French, then Ukrainian and Chinese (Mandarin, `zh_CN`), each with a
+  native-speaker review.
 - **Later**: switch to `html-translator-laravel` 0.3 jobs/events (when the package has them); repeaters, Builder
   blocks, other storage targets.
 
