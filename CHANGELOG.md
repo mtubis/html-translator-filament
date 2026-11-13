@@ -6,6 +6,15 @@ While the version is 0.x, a minor version may change the public API; this file s
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-13
+
+### Fixed
+- The `translation_states` migration is published with the current timestamp (`YYYY_MM_DD_HHMMSS_…`) like other
+  package migrations; 0.1.0 published it without a date prefix, so it sorted after all dated migrations.
+
+### Changed
+- Package description and keywords (`i18n`, `localization`) in `composer.json`.
+
 ## [0.1.0] - 2026-11-13
 
 First release: translate spatie-translatable records from a Filament 5 panel with
@@ -33,5 +42,6 @@ translations are missing, unreviewed or stale.
   translations, keys or exception details from outside the translator.
 - English and Spanish UI strings.
 
-[Unreleased]: https://github.com/mtubis/html-translator-filament/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/mtubis/html-translator-filament/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/mtubis/html-translator-filament/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/mtubis/html-translator-filament/releases/tag/v0.1.0
