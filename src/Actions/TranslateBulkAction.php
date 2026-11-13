@@ -16,6 +16,7 @@ use HtmlTranslator\Filament\Support\ActiveLocale;
 use HtmlTranslator\Filament\Support\Lang;
 use HtmlTranslator\Filament\Support\TranslationDefaults;
 use HtmlTranslator\Filament\Translation\TranslateRecord;
+use HtmlTranslator\Filament\Translation\TranslationBatch;
 use HtmlTranslator\Filament\Translation\TranslationReport;
 use Illuminate\Auth\AuthManager;
 use Illuminate\Bus\Batch;
@@ -24,7 +25,6 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Factory as AuthFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Bus;
 
 /**
  * Table bulk action: translates every selected record and sends one summary notification. Runs in the request for
@@ -55,7 +55,7 @@ final class TranslateBulkAction extends BulkAction
     /**
      * @param Collection<array-key, mixed> $records
      */
-    private function dispatchBatch(Collection $records, string $locale, OverwritePolicy $policy, ?int $userId, TranslationDefaults $defaults): void
+    private function dispatchBatch(Collection $records, string $locale, OverwritePolicy $policy, ?int $userId): void
     {
         $jobs = [];
         foreach ($records as $record) {
@@ -64,9 +64,8 @@ final class TranslateBulkAction extends BulkAction
             }
         }
 
-        $batch = Bus::batch($jobs)
-            ->name('html-translator: ' . \count($jobs) . ' records → ' . $locale)
-            ->allowFailures()
+        $batch = Container::getInstance()->make(TranslationBatch::class)
+            ->make($jobs, \count($jobs) . ' records → ' . $locale)
             ->finally(static function (Batch $batch) use ($userId): void {
                 $user = TranslateRecordJob::findUser(Container::getInstance()->make(AuthManager::class), $userId);
                 if (!$user instanceof Authenticatable) {
@@ -78,13 +77,7 @@ final class TranslateBulkAction extends BulkAction
                     ->body(Lang::get('notifications.batch_body', ['done' => $batch->totalJobs - $batch->failedJobs, 'total' => $batch->totalJobs]))
                     ->status($batch->failedJobs === 0 ? 'success' : 'warning')
                     ->sendToDatabase($user);
-            })
-            ->onQueue($defaults->queueName());
-
-        $connection = $defaults->connection();
-        if ($connection !== null) {
-            $batch->onConnection($connection);
-        }
+            });
 
         $batch->dispatch();
 
@@ -112,7 +105,7 @@ final class TranslateBulkAction extends BulkAction
                 }
 
                 if ($defaults->queue()) {
-                    $this->dispatchBatch($records, $locale, self::policyFrom($data), self::userId($auth), $defaults);
+                    $this->dispatchBatch($records, $locale, self::policyFrom($data), self::userId($auth));
 
                     return;
                 }

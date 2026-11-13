@@ -7,6 +7,10 @@ While the version is 0.x, a minor version may change the public API; this file s
 ## [Unreleased]
 
 ### Added
+- `php artisan html-translator-filament:translate`: translate the records of one or more models (class names or morph
+  aliases) into the target locales, with `--policy`, `--locale`, `--relations`, `--id`, `--dry-run`, `--queue`,
+  `--provider` / `--profile` and `--fail-on-incomplete` (#2).
+- `TranslateRecord::preview()`: what a translation would do, without calling the translator.
 - German (`lang/de`) and Polish (`lang/pl`) interface translations, reviewed by speakers of both languages (#4).
 - Plural forms for texts with a count ("1 translation marked as reviewed" / "2 translations …"), including Polish's
   three forms.
@@ -14,6 +18,9 @@ While the version is 0.x, a minor version may change the public API; this file s
 - A test that every interface language has the English keys and placeholders.
 - README: **Translating in the panel (for editors)**, a step-by-step guide for the people who translate and review
   content: states and badges, translating a record, a field or many records, reviewing, stale translations.
+
+### Changed
+- The bulk action builds its job batch with the new `TranslationBatch` class (no behaviour change).
 
 ## [0.1.2] - 2026-11-13
 

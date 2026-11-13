@@ -6,7 +6,7 @@ actions, a review workflow (`machine` → `reviewed`) and stale-translation dete
 
 - **Editors:** [Translating in the panel](#translating-in-the-panel-for-editors).
 - **Developers:** [Requirements](#requirements), [Installation](#installation),
-  [Choosing a provider and a model](#choosing-a-provider-and-a-model), [Queue](#queue).
+  [Choosing a provider and a model](#choosing-a-provider-and-a-model), [Queue](#queue), [Command line](#command-line).
 
 > **Status:** 0.1. The public API may still change in 0.x minor versions; the
 > [CHANGELOG](CHANGELOG.md) says how. Plans: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
@@ -96,8 +96,10 @@ To update it:
 > To be fixed in 0.2 ([#3](https://github.com/mtubis/html-translator-filament/issues/3)).
 
 ### From the command line
-Commands for translating and reviewing many records at once (`html-translator-filament:translate` and
-`html-translator-filament:mark-reviewed`) are planned for version 0.2; they will be described here.
+Developers or administrators can translate many records at once with
+`php artisan html-translator-filament:translate`, see [Command line](#command-line). The results are drafts, exactly
+as from the panel: review them as described above. A command for marking many translations as reviewed is planned
+for version 0.2.
 
 ## Requirements
 PHP 8.4+, Laravel 13, Filament 5, `mtubis/html-translator-laravel` ^0.2 (installed with the plugin). The translations
@@ -357,6 +359,45 @@ argument when it is not your `QUEUE_CONNECTION` (`php artisan queue:work redis -
   editor with a generic message; exception details stay in the logs.
 - Relation managers that show translations should `use HtmlTranslator\Filament\Concerns\RefreshesAfterTranslation;`,
   so their badges refresh after a synchronous translate action on the page.
+
+## Command line
+Translate the records of one or more models into the plugin's target locales:
+
+```bash
+php artisan html-translator-filament:translate "App\Models\Post" --dry-run   # what would be translated; no API calls
+php artisan html-translator-filament:translate "App\Models\Post"             # translate now, in this process
+php artisan html-translator-filament:translate post page --queue              # morph aliases; a batch of queued jobs
+```
+
+| Option | Meaning |
+|---|---|
+| `--locale=en` | Target locale; repeatable. Default: every target locale of the plugin. |
+| `--policy=` | `only-missing` (default), `overwrite-machine` or `force`, as in the panel. |
+| `--relations=comments` | Relations translated together with each record; repeatable. |
+| `--id=12` | Only these records; repeatable. |
+| `--dry-run` | Lists what would be translated (`-v`: per record and attribute). Calls no provider, writes nothing, needs no API key. |
+| `--queue` | Dispatches one job batch on the plugin's connection and queue and prints the worker command. Nothing is translated until a worker runs it; no panel notifications are sent. |
+| `--provider=`, `--profile=` | Another entry of `config/html-translator.php` for this run; synchronous runs only. |
+| `--fail-on-incomplete` | Exit code 1 also when a translation is incomplete. |
+| `--force` | Required with `--policy=force` when there is no one to answer the confirmation (cron, CI, `--no-interaction`). |
+
+- **Results** are machine drafts (state *Machine*), like translations made in the panel. With `only-missing` a record
+  whose texts are all translated costs nothing: no provider call is made for it.
+- **Output:** a progress bar per model and locale, a warning for every incomplete or failed attribute (the
+  translator's messages with `-v`), and totals: translated, skipped, incomplete, failed, units, tokens and cache hits.
+  Source texts, translations and API keys are never printed.
+- **Exit code** 1 when an attribute failed, an argument is invalid, or the `force` confirmation is refused; 0
+  otherwise.
+- **Settings:** locales, provider, profile and queue come from the plugin registered on your panel. With several
+  panels, the settings of the last registered one apply.
+
+Translate new and changed content every night (in `routes/console.php`):
+
+```php
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('html-translator-filament:translate', ['post', '--no-interaction'])->dailyAt('02:00');
+```
 
 ## Interface languages
 The plugin's buttons, forms, states and notifications follow the application locale (`app()->getLocale()`), like

@@ -188,6 +188,30 @@ final class TranslateRecordTest extends TestCase
     }
 
     #[Test]
+    public function a_preview_lists_what_would_be_translated_without_calling_the_translator(): void
+    {
+        HtmlTranslation::fake();
+        $post = Post::factory()->create(['title' => ['es' => 'Hola'], 'body' => ['es' => '<p>Hola</p>']]);
+        $comment = Comment::factory()->for($post)->create(['text' => ['es' => '']]);
+        resolve(TranslationStateStore::class)->markMachine($post, 'title', 'en', 'Hola', null, null);
+
+        $outcomes = resolve(TranslateRecord::class)->preview($post, 'en', OverwritePolicy::OnlyMissing, ['comments']);
+
+        $byAttribute = [];
+        foreach ($outcomes as $outcome) {
+            $byAttribute[$outcome->recordType . '.' . $outcome->attribute] = [$outcome->status, $outcome->reason];
+        }
+
+        self::assertSame([
+            $post->getMorphClass() . '.title' => [OutcomeStatus::Skipped, 'kept_machine'],
+            $post->getMorphClass() . '.body' => [OutcomeStatus::Translated, null],
+            $comment->getMorphClass() . '.text' => [OutcomeStatus::Skipped, TranslationReport::EMPTY_SOURCE],
+        ], $byAttribute);
+        HtmlTranslation::assertNothingTranslated();
+        self::assertSame('', $post->refresh()->getTranslation('body', 'en', false));
+    }
+
+    #[Test]
     public function relations_are_translated_only_when_requested(): void
     {
         HtmlTranslation::fake(['en' => static fn(string $html): string => 'EN']);

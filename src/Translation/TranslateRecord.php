@@ -42,9 +42,7 @@ final readonly class TranslateRecord
         OverwritePolicy $policy = OverwritePolicy::OnlyMissing,
         array $relations = [],
     ): TranslationReport {
-        if (! \in_array($locale, $this->locales->targets(), true)) {
-            throw InvalidPluginConfigurationException::notATargetLocale($locale, $this->locales->targets());
-        }
+        $this->assertTarget($locale);
 
         $outcomes = [];
         $stats = [];
@@ -71,6 +69,69 @@ final readonly class TranslateRecord
     }
 
     /**
+     * What a translation would do, without calling the translator or writing anything: one outcome per attribute,
+     * `Translated` for the attributes that would be sent to the translator, `Skipped` (with the reason) for the rest.
+     *
+     * @param list<string> $relations
+     *
+     * @return list<AttributeOutcome>
+     */
+    public function preview(
+        Model&TracksTranslations $record,
+        string $locale,
+        OverwritePolicy $policy = OverwritePolicy::OnlyMissing,
+        array $relations = [],
+    ): array {
+        $this->assertTarget($locale);
+
+        $outcomes = [];
+        foreach ([$record, ...$this->related($record, $relations)] as $model) {
+            foreach ($model->getTranslatableAttributes() as $attribute) {
+                $check = $this->check($model, $attribute, $locale, $policy);
+                $outcomes[] = $check instanceof AttributeOutcome
+                    ? $check
+                    : $this->outcome($model, $attribute, OutcomeStatus::Translated);
+            }
+        }
+
+        return $outcomes;
+    }
+
+    private function assertTarget(string $locale): void
+    {
+        if (! \in_array($locale, $this->locales->targets(), true)) {
+            throw InvalidPluginConfigurationException::notATargetLocale($locale, $this->locales->targets());
+        }
+    }
+
+    /**
+     * The checks made before any translator call: the source text that would be sent, or why the attribute is
+     * skipped.
+     */
+    private function check(Model&TracksTranslations $model, string $attribute, string $locale, OverwritePolicy $policy): string|AttributeOutcome
+    {
+        $source = $model->getTranslation($attribute, $this->locales->source(), false);
+        if (! \is_string($source) || trim($source) === '') {
+            return $this->outcome($model, $attribute, OutcomeStatus::Skipped, TranslationReport::EMPTY_SOURCE);
+        }
+
+        $status = $this->states->status($model, $attribute, $locale);
+        if (! $policy->allows($status)) {
+            return $this->outcome($model, $attribute, OutcomeStatus::Skipped, 'kept_' . $status?->value);
+        }
+
+        return $source;
+    }
+
+    /**
+     * @param list<string> $issues
+     */
+    private function outcome(Model $model, string $attribute, OutcomeStatus $status, ?string $reason = null, array $issues = []): AttributeOutcome
+    {
+        return new AttributeOutcome($model->getMorphClass(), $this->key($model), $attribute, $status, $reason, $issues);
+    }
+
+    /**
      * @return array{AttributeOutcome, array{string, string}|null, TranslationStats|null}
      */
     private function translateAttribute(
@@ -79,24 +140,18 @@ final readonly class TranslateRecord
         string $locale,
         OverwritePolicy $policy,
     ): array {
-        $outcome = fn(OutcomeStatus $status, ?string $reason = null, array $issues = []): AttributeOutcome => new AttributeOutcome(
-            $model->getMorphClass(),
-            $this->key($model),
+        $source = $this->check($model, $attribute, $locale, $policy);
+        if ($source instanceof AttributeOutcome) {
+            return [$source, null, null];
+        }
+
+        $outcome = fn(OutcomeStatus $status, ?string $reason = null, array $issues = []): AttributeOutcome => $this->outcome(
+            $model,
             $attribute,
             $status,
             $reason,
             array_values(array_filter($issues, \is_string(...))),
         );
-
-        $source = $model->getTranslation($attribute, $this->locales->source(), false);
-        if (! \is_string($source) || trim($source) === '') {
-            return [$outcome(OutcomeStatus::Skipped, TranslationReport::EMPTY_SOURCE), null, null];
-        }
-
-        $status = $this->states->status($model, $attribute, $locale);
-        if (! $policy->allows($status)) {
-            return [$outcome(OutcomeStatus::Skipped, 'kept_' . $status?->value), null, null];
-        }
 
         $result = $this->texts->translate(
             $source,

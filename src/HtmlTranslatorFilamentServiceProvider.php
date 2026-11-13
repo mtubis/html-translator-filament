@@ -6,6 +6,7 @@ namespace HtmlTranslator\Filament;
 
 use Filament\Forms\Components\Field;
 use HtmlTranslator\Filament\Actions\TranslateFieldAction;
+use HtmlTranslator\Filament\Console\TranslateCommand;
 use HtmlTranslator\Filament\Contracts\TranslationStateStore;
 use HtmlTranslator\Filament\Stores\EloquentTranslationStateStore;
 use HtmlTranslator\Filament\Support\TranslationDefaults;
@@ -31,6 +32,10 @@ final class HtmlTranslatorFilamentServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadTranslationsFrom(__DIR__ . '/../lang', self::TRANSLATION_NAMESPACE);
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([TranslateCommand::class]);
+        }
 
         // `->translateWithAi()` on any form field; `->hintAction(TranslateFieldAction::make())` is the explicit form.
         // A regular closure, not an arrow function: Macroable rebinds $this to the field.
