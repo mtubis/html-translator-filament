@@ -38,6 +38,20 @@ final class PluralMessagesTest extends TestCase
             yield "pl done stale {$n}" => ['pl', 'actions.review.done_stale', $n, "W tym {$n} {$words} nieaktualne."];
         }
 
+        // French: 0 and 1 are singular.
+        yield 'fr 0' => ['fr', 'actions.review.done', 0, '0 traduction marquée comme vérifiée.'];
+        yield 'fr 1' => ['fr', 'actions.review.done', 1, '1 traduction marquée comme vérifiée.'];
+        yield 'fr 2' => ['fr', 'actions.review.done', 2, '2 traductions marquées comme vérifiées.'];
+
+        // Ukrainian: one (1, 21, not 11) | few (2–4, 22–24, not 12–14) | many.
+        foreach ([1 => 'переклад як перевірений', 2 => 'переклади як перевірені', 5 => 'перекладів як перевірені', 11 => 'перекладів як перевірені', 21 => 'переклад як перевірений', 22 => 'переклади як перевірені', 25 => 'перекладів як перевірені'] as $n => $words) {
+            yield "uk {$n}" => ['uk', 'actions.review.done', $n, "Позначено {$n} {$words}."];
+        }
+
+        // Chinese: one form.
+        yield 'zh_CN 1' => ['zh_CN', 'actions.review.done', 1, '已将 1 条翻译标记为已审核。'];
+        yield 'zh_CN 5' => ['zh_CN', 'actions.review.done', 5, '已将 5 条翻译标记为已审核。'];
+
         foreach ([1, 2, 5, 12] as $n) {
             yield "pl stale {$n}" => ['pl', 'actions.review.stale_warning', $n, "Nieaktualne tłumaczenia: {$n}. Tekst źródłowy się zmienił. Przed oznaczeniem tłumaczeń jako sprawdzonych porównaj je z aktualnym tekstem źródłowym."];
         }

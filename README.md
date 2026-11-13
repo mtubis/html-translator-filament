@@ -432,15 +432,20 @@ php artisan html-translator-filament:mark-reviewed post --reviewer=editor@exampl
 The plugin's buttons, forms, states and notifications follow the application locale (`app()->getLocale()`), like
 Filament's own texts. Shipped languages:
 
-| Locale | Language |
-|---|---|
-| `en` | English |
-| `es` | Spanish |
-| `de` | German |
-| `pl` | Polish |
+| Locale | Language | Review |
+|---|---|---|
+| `en` | English | source |
+| `de` | German | fluent speaker |
+| `pl` | Polish | native speaker |
+| `es` | Spanish | non-native speaker; native input welcome |
+| `fr` | French | not yet reviewed; native input welcome |
+| `uk` | Ukrainian | not yet reviewed; native input welcome |
+| `zh_CN` | Chinese (Mandarin, Simplified) | not yet reviewed; native input welcome |
 
-Planned: French, then Ukrainian and Chinese (Mandarin, `zh_CN`). A locale without a file falls back to English
-(Laravel's `fallback_locale`, when it is `en`).
+A locale without a file falls back to English (Laravel's `fallback_locale`, when it is `en`).
+
+**Corrections are welcome**, especially from native speakers: open an issue or a pull request with the text and
+your suggestion. A short note on why (register, terminology used elsewhere in Filament) helps the next reviewer.
 
 **Change a text or add a language** in your application, without touching the package:
 

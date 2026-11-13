@@ -15,6 +15,8 @@ While the version is 0.x, a minor version may change the public API; this file s
   `--include-stale` (#2).
 - `TranslateRecord::preview()`: what a translation would do, without calling the translator.
 - German (`lang/de`) and Polish (`lang/pl`) interface translations, reviewed by speakers of both languages (#4).
+- French (`lang/fr`), Ukrainian (`lang/uk`) and Chinese (`lang/zh_CN`) interface translations (#5). README lists the
+  review status of every language; native input is welcome.
 - Plural forms for texts with a count ("1 translation marked as reviewed" / "2 translations …"), including Polish's
   three forms.
 - README: **Interface languages**, how to change a text or add a language.
