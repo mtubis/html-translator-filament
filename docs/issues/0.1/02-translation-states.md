@@ -5,7 +5,7 @@
 without a data migration.
 
 ## Scope
-- Publishable migration `create_translation_states_table`:
+- Publishable migration `create_translation_states_table` (dated file name, so `vendor:publish` stamps it):
   - morphs `translatable`, `attribute`, `locale`, `status` (`missing|machine|reviewed`), `source_hash` (sha256);
   - `translated_at`, `reviewed_at`, `reviewed_by` (nullable FK to `users`; a configurable user table and the
     reviewer relation are deferred to #4, where the review action needs them);
