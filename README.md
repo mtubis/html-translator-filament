@@ -439,7 +439,7 @@ Filament's own texts. Shipped languages:
 | `pl` | Polish | native speaker |
 | `es` | Spanish | non-native speaker; native input welcome |
 | `fr` | French | non-native speaker; native input welcome |
-| `uk` | Ukrainian | not yet reviewed; native input welcome |
+| `uk` | Ukrainian | non-native speaker; native input welcome |
 | `zh_CN` | Chinese (Mandarin, Simplified) | not yet reviewed; native input welcome |
 
 A locale without a file falls back to English (Laravel's `fallback_locale`, when it is `en`).
