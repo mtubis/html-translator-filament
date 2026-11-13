@@ -81,14 +81,28 @@ final readonly class EloquentTranslationStateStore implements TranslationStateSt
 
     public function markReviewedAll(Model&TracksTranslations $record, string $locale, ?int $reviewerId): int
     {
-        return $record->translationStates()
-            ->where('locale', $locale)
-            ->where('status', TranslationStatus::Machine->value)
-            ->update([
-                'status' => TranslationStatus::Reviewed->value,
-                'reviewed_at' => Carbon::now(),
-                'reviewed_by' => $reviewerId,
-            ]);
+        $count = 0;
+        foreach ($record->translationStates()->where('locale', $locale)->get() as $state) {
+            $changes = ['status' => TranslationStatus::Reviewed, 'reviewed_at' => Carbon::now(), 'reviewed_by' => $reviewerId];
+
+            if ($state->status === TranslationStatus::Missing) {
+                // A translation written by hand: reviewable once it has a value. It was made from the current source.
+                $target = $record->getTranslation($state->attribute, $locale, false);
+                if (! \is_string($target) || trim($target) === '') {
+                    continue;
+                }
+
+                $source = $record->getTranslation($state->attribute, $this->locales->source(), false);
+                $changes['source_hash'] = TranslationState::hashSource(\is_string($source) ? $source : null);
+            } elseif ($state->status !== TranslationStatus::Machine) {
+                continue;
+            }
+
+            $state->fill($changes)->save();
+            ++$count;
+        }
+
+        return $count;
     }
 
     public function isStale(TranslationState $state): bool

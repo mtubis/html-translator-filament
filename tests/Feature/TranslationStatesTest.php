@@ -131,6 +131,19 @@ final class TranslationStatesTest extends TestCase
     }
 
     #[Test]
+    public function reviewing_also_marks_hand_written_translations_but_not_empty_ones(): void
+    {
+        $post = Post::factory()->create();
+        $post->setTranslation('title', 'en', 'Typed by an editor')->save();
+
+        $count = $this->store()->markReviewedAll($post, 'en', null);
+
+        self::assertSame(1, $count);
+        self::assertSame(TranslationStatus::Reviewed, $post->translationState('title', 'en')?->status);
+        self::assertSame(TranslationStatus::Missing, $post->translationState('body', 'en')?->status);
+    }
+
+    #[Test]
     public function there_is_one_state_per_record_attribute_and_locale(): void
     {
         $post = Post::factory()->create();

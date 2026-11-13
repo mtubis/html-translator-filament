@@ -49,7 +49,8 @@ interface TranslationStateStore
     ): TranslationState;
 
     /**
-     * Marks every `machine` state of the record in the locale as reviewed; other states are left alone.
+     * Marks the record's translations in the locale as reviewed: machine drafts, and translations written by hand
+     * (a `missing` state whose target value is not empty). Empty and already reviewed ones are left alone.
      *
      * @return int the number of states marked
      */

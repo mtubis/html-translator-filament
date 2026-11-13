@@ -37,4 +37,6 @@ All notable changes to this project are documented here. The format follows
   save marks the attribute `machine` (session-backed `PendingFieldTranslations`, skipped if the source changed).
 - `Translation\TextTranslator` / `TextResult`: one text in, one result out; used by `TranslateRecord` and the field
   action.
+- Reviewing also covers translations written by hand (a `missing` state with a value), which get the current source
+  hash; before, they could never become `reviewed`.
 - Mutation testing (Infection, as in html-translator-laravel) is planned once there is logic worth mutating.

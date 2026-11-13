@@ -119,8 +119,8 @@ $table
 - **`TranslateRecordAction`** asks for the target locale and the overwrite policy. `Force` needs an explicit
   confirmation. It reports counts, token usage and issues in a notification, and refreshes the form when the page
   edits the translated locale.
-- **`MarkTranslationReviewedAction`** marks the machine translations of the edited locale as reviewed, with the
-  current user as reviewer. Editing a translation by hand does not review it.
+- **`MarkTranslationReviewedAction`** marks the edited locale's machine drafts and translations written by hand as
+  reviewed, with the current user as reviewer. Saving an edit does not review it: reviewing is the explicit step.
 - **`TranslationStatusColumn`** shows one badge per target locale: not translated, machine, stale or reviewed.
 - **Active locale:** pages and relation managers with a public `activeLocale` property (like those of
   `lara-zeus/spatie-translatable`) tell the actions which locale is being edited. The actions are hidden while the
