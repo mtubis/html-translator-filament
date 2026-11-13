@@ -1,5 +1,7 @@
 # Show a queued translation without reloading the edit page
 
+GitHub: https://github.com/mtubis/html-translator-filament/issues/1
+
 ## Context
 With `->queue()`, `TranslateRecordAction` only dispatches `TranslateRecordJob`. When the job finishes, the editor gets
 a database notification, but the open edit page still shows the old form state: they have to reload the page and
