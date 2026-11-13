@@ -33,4 +33,8 @@ All notable changes to this project are documented here. The format follows
 - `RefreshesAfterTranslation` trait for relation managers (badges refresh after the translate action).
 - Fixed after the first dogfooding run: status column label ("Translation"), `TranslationReport::skipped()` no longer
   counts empty sources (`empty()` does).
+- Field action: `TranslateFieldAction` and the `->translateWithAi()` field macro; fills only the form state, the
+  save marks the attribute `machine` (session-backed `PendingFieldTranslations`, skipped if the source changed).
+- `Translation\TextTranslator` / `TextResult`: one text in, one result out; used by `TranslateRecord` and the field
+  action.
 - Mutation testing (Infection, as in html-translator-laravel) is planned once there is logic worth mutating.

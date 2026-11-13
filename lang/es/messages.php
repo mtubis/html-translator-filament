@@ -29,6 +29,9 @@ return [
             'heading' => '¿Marcar las traducciones automáticas como revisadas?',
             'done' => ':count traducción(es) marcada(s) como revisada(s).',
         ],
+        'field' => [
+            'label' => 'Traducir',
+        ],
         'bulk' => [
             'label' => 'Generar borradores traducidos',
         ],
@@ -37,6 +40,9 @@ return [
         'status' => 'Traducción',
     ],
     'notifications' => [
+        'field_translated' => 'Campo traducido',
+        'field_translated_body' => 'Revisa el borrador y guarda el formulario.',
+        'field_not_translated' => 'No se pudo traducir el campo',
         'started' => 'Traducción iniciada',
         'started_body' => 'Recibirás un aviso cuando el borrador esté listo.',
         'failed' => 'No se pudo terminar la traducción',

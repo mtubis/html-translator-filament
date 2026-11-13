@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace HtmlTranslator\Filament;
 
+use Filament\Forms\Components\Field;
+use HtmlTranslator\Filament\Actions\TranslateFieldAction;
 use HtmlTranslator\Filament\Contracts\TranslationStateStore;
 use HtmlTranslator\Filament\Stores\EloquentTranslationStateStore;
 use HtmlTranslator\Filament\Support\TranslationDefaults;
@@ -29,6 +31,13 @@ final class HtmlTranslatorFilamentServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadTranslationsFrom(__DIR__ . '/../lang', self::TRANSLATION_NAMESPACE);
+
+        // `->translateWithAi()` on any form field; `->hintAction(TranslateFieldAction::make())` is the explicit form.
+        // A regular closure, not an arrow function: Macroable rebinds $this to the field.
+        // A regular closure, not an arrow function: Macroable rebinds $this to the field (rector.php skips this file).
+        Field::macro('translateWithAi', function (): mixed {
+            return TranslateFieldAction::attachTo($this);
+        });
 
         RateLimiter::for(TranslationDefaults::RATE_LIMITER, function (): Limit {
             $perMinute = $this->app->make(TranslationDefaults::class)->rateLimit();

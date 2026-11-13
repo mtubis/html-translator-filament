@@ -12,6 +12,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use HtmlTranslator\Filament\Actions\MarkTranslationReviewedAction;
 use HtmlTranslator\Filament\Actions\TranslateBulkAction;
+use HtmlTranslator\Filament\Actions\TranslateFieldAction;
 use HtmlTranslator\Filament\Tables\Columns\TranslationStatusColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Workbench\App\Filament\Resources\Posts\Pages\EditPost;
@@ -30,8 +31,8 @@ final class PostResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('title'),
-            Textarea::make('body'),
+            TextInput::make('title')->hintAction(TranslateFieldAction::make()),
+            Textarea::make('body')->hintAction(TranslateFieldAction::make()),
         ]);
     }
 

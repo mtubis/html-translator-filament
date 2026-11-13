@@ -128,6 +128,20 @@ $table
 - Notifications contain only counts, usage and the translator's issue messages, never prompt text, translations or
   keys. Labels come from `lang/{en,es}`; override them in `lang/vendor/html-translator-filament`.
 
+## Field action
+Re-translate a single field without touching the others:
+
+```php
+RichEditor::make('body')->translateWithAi();                    // macro
+TextInput::make('title')->hintAction(TranslateFieldAction::make());  // the same, statically typed
+```
+
+- The action fills the field in the edited locale and saves nothing. When the editor saves the form, that attribute
+  is marked `machine`, unless its source text changed in the meantime.
+- It is hidden while the source locale is edited. Incomplete or failed translations leave the field unchanged and
+  show a warning.
+- The field name must be the model attribute. HTML vs plain text follows the model's `$htmlTranslatable`.
+
 ## Queue
 With a real provider a record takes seconds, so translate in the background:
 

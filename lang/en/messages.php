@@ -29,6 +29,9 @@ return [
             'heading' => 'Mark the machine translations as reviewed?',
             'done' => ':count translation(s) marked as reviewed.',
         ],
+        'field' => [
+            'label' => 'Translate',
+        ],
         'bulk' => [
             'label' => 'Generate draft translations',
         ],
@@ -37,6 +40,9 @@ return [
         'status' => 'Translation',
     ],
     'notifications' => [
+        'field_translated' => 'Field translated',
+        'field_translated_body' => 'Check the draft and save the form.',
+        'field_not_translated' => 'The field could not be translated',
         'started' => 'Translation started',
         'started_body' => 'You will be notified when the draft is ready.',
         'failed' => 'The translation could not be finished',

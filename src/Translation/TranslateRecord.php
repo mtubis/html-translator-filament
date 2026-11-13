@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 namespace HtmlTranslator\Filament\Translation;
 
-use HtmlTranslator\Exception\TranslatorException;
 use HtmlTranslator\Filament\Contracts\TracksTranslations;
 use HtmlTranslator\Filament\Contracts\TranslationStateStore;
 use HtmlTranslator\Filament\Enums\OverwritePolicy;
 use HtmlTranslator\Filament\Exceptions\InvalidPluginConfigurationException;
 use HtmlTranslator\Filament\Support\TranslationDefaults;
 use HtmlTranslator\Filament\Support\TranslationLocales;
-use HtmlTranslator\Issue;
-use HtmlTranslator\Laravel\Contracts\TranslatesHtml;
-use HtmlTranslator\Laravel\PendingTranslation;
 use HtmlTranslator\TranslationStats;
 use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Database\Eloquent\Collection;
@@ -30,7 +26,7 @@ use InvalidArgumentException;
 final readonly class TranslateRecord
 {
     public function __construct(
-        private TranslatesHtml $translator,
+        private TextTranslator $texts,
         private TranslationStateStore $states,
         private TranslationLocales $locales,
         private TranslationDefaults $defaults,
@@ -102,23 +98,17 @@ final readonly class TranslateRecord
             return [$outcome(OutcomeStatus::Skipped, 'kept_' . $status?->value), null, null];
         }
 
-        $isHtml = \in_array($attribute, $model->getHtmlTranslatableAttributes(), true);
+        $result = $this->texts->translate(
+            $source,
+            \in_array($attribute, $model->getHtmlTranslatableAttributes(), true),
+            $locale,
+        );
 
-        try {
-            $document = $this->pending()->translate($isHtml ? $source : $this->escape($source), $locale);
-        } catch (TranslatorException $exception) {
-            return [$outcome(OutcomeStatus::Failed, 'translator_error', [$exception->getMessage()]), null, null];
-        }
-
-        if (! $document->isComplete()) {
-            $issues = array_map(static fn(Issue $issue): string => $issue->message, $document->issues());
-
-            return [$outcome(OutcomeStatus::Incomplete, 'incomplete', $issues), null, $document->stats()];
-        }
-
-        $value = $isHtml ? $document->html() : $this->unescape($document->html());
-
-        return [$outcome(OutcomeStatus::Translated), [$source, $value], $document->stats()];
+        return match ($result->status) {
+            OutcomeStatus::Translated => [$outcome(OutcomeStatus::Translated), [$source, (string) $result->value], $result->stats],
+            OutcomeStatus::Incomplete => [$outcome(OutcomeStatus::Incomplete, 'incomplete', $result->issues), null, $result->stats],
+            default => [$outcome(OutcomeStatus::Failed, 'translator_error', $result->issues), null, null],
+        };
     }
 
     /**
@@ -154,18 +144,6 @@ final readonly class TranslateRecord
         });
     }
 
-    private function pending(): PendingTranslation
-    {
-        $pending = $this->translator->from($this->locales->source());
-        $profile = $this->defaults->profile();
-        if ($profile !== null) {
-            $pending = $pending->profile($profile);
-        }
-
-        $provider = $this->defaults->provider();
-
-        return $provider === null ? $pending : $pending->provider($provider);
-    }
 
     /**
      * @param list<string> $relations
@@ -209,16 +187,5 @@ final readonly class TranslateRecord
         return \is_int($key) || \is_string($key) ? $key : '';
     }
 
-    /**
-     * Plain text goes to the HTML translator as escaped text, so "<" or "&" in a title can never become markup.
-     */
-    private function escape(string $text): string
-    {
-        return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
-    }
 
-    private function unescape(string $html): string
-    {
-        return html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-    }
 }
