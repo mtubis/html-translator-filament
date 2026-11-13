@@ -6,6 +6,18 @@ While the version is 0.x, a minor version may change the public API; this file s
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-11-13
+
+Documentation only: how to set up a provider and run the queue worker, without reading the code.
+
+### Added
+- README: **Choosing a provider and a model**: publishing `config/html-translator.php`, the `.env` keys and model
+  variables per provider, `html-translator:check --ping`, the `pseudo` provider for work without an API key, and
+  that the default provider is `openai` when `HTML_TRANSLATOR_PROVIDER` is not set.
+- README: **Queue** explains which queues the worker must listen on (the plugin's queue and `default`, where
+  Filament's database notifications go), development and production workers, the required tables, what the editor
+  sees after a queued translation, and a troubleshooting table.
+
 ## [0.1.1] - 2026-11-13
 
 ### Fixed
@@ -42,6 +54,7 @@ translations are missing, unreviewed or stale.
   translations, keys or exception details from outside the translator.
 - English and Spanish UI strings.
 
-[Unreleased]: https://github.com/mtubis/html-translator-filament/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/mtubis/html-translator-filament/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/mtubis/html-translator-filament/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/mtubis/html-translator-filament/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/mtubis/html-translator-filament/releases/tag/v0.1.0

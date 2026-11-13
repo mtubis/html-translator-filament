@@ -4,11 +4,13 @@ A Filament v5 plugin for markup-safe AI translation of `spatie/laravel-translata
 [`mtubis/html-translator-laravel`](https://github.com/mtubis/html-translator-laravel) and adds record and field
 actions, a review workflow (`machine` → `reviewed`) and stale-translation detection.
 
-> **Status:** 0.1, the first release. The public API may still change in 0.x minor versions; the
+> **Status:** 0.1. The public API may still change in 0.x minor versions; the
 > [CHANGELOG](CHANGELOG.md) says how. Plans: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Requirements
-PHP 8.4+, Laravel 13, Filament 5, `mtubis/html-translator-laravel` ^0.2 (configured with at least one provider).
+PHP 8.4+, Laravel 13, Filament 5, `mtubis/html-translator-laravel` ^0.2 (installed with the plugin). The translations
+are made by an AI model, so you need an account and an API key for a provider (OpenAI, Anthropic, Gemini) or a local
+model server (Ollama, vLLM, LM Studio). See [Choosing a provider and a model](#choosing-a-provider-and-a-model).
 
 ## Installation
 ```bash
@@ -29,6 +31,59 @@ $panel->plugin(
         ->queue(),                    // translate in queued jobs (0.1 #5)
 );
 ```
+
+## Choosing a provider and a model
+The plugin does not talk to AI providers itself: it uses the providers configured for
+[`mtubis/html-translator-laravel`](https://github.com/mtubis/html-translator-laravel). Nothing translates until one
+of them has a key **and** a model.
+
+1. Publish the configuration file, `config/html-translator.php`:
+
+   ```bash
+   php artisan vendor:publish --tag=html-translator-config
+   ```
+
+2. Pick a provider and set its key and model in `.env`. `HTML_TRANSLATOR_PROVIDER` names the provider entry used by
+   default. **Without it the default is `openai`**, so the actions fail until `OPENAI_API_KEY` and
+   `HTML_TRANSLATOR_OPENAI_MODEL` are set.
+
+   ```dotenv
+   # Anthropic
+   HTML_TRANSLATOR_PROVIDER=anthropic
+   ANTHROPIC_API_KEY=sk-ant-...
+   HTML_TRANSLATOR_ANTHROPIC_MODEL=claude-sonnet-5-5   # required: there is no default model
+   ```
+
+   | Provider | `HTML_TRANSLATOR_PROVIDER` | Key | Model (required) |
+   |---|---|---|---|
+   | OpenAI | `openai` | `OPENAI_API_KEY` | `HTML_TRANSLATOR_OPENAI_MODEL` |
+   | Anthropic | `anthropic` | `ANTHROPIC_API_KEY` | `HTML_TRANSLATOR_ANTHROPIC_MODEL` |
+   | Google Gemini | `gemini` | `GEMINI_API_KEY` | `HTML_TRANSLATOR_GEMINI_MODEL` |
+   | Ollama (local) | `ollama` | none (`OLLAMA_BASE_URL`, default `http://localhost:11434/v1`) | `HTML_TRANSLATOR_OLLAMA_MODEL` |
+   | Pseudo-localization | `pseudo` | none | none |
+
+   The model value is the provider's own model ID, exactly as in its API documentation. Other servers (vLLM, LM
+   Studio, any OpenAI-compatible API) and several entries for one provider (a cheap and a strong model) are set up in
+   `config/html-translator.php`; see the
+   [providers section of html-translator-laravel](https://github.com/mtubis/html-translator-laravel#providers).
+
+3. Check the configuration. It lists every problem at once and never prints a key; `--ping` also sends one short test
+   translation per provider:
+
+   ```bash
+   php artisan html-translator:check --ping
+   ```
+
+4. If configuration is cached (`php artisan config:cache`, usual in production), rebuild the cache, and restart your
+   queue workers (`php artisan queue:restart`): a running `queue:work` keeps the configuration it started with.
+
+**Without an API key** (local development, demos, tests) use `HTML_TRANSLATOR_PROVIDER=pseudo`. It needs no network
+and no key. It does not really translate: it returns the source text with accented letters (`Servicios` →
+`[!! Šéŕṽíçíöš !!]`), so you can try every step of the workflow and see that the markup survives.
+
+To use an entry other than the default only in the panel, name it on the plugin: `->provider('anthropic')`.
+Profiles (tone, glossary, terms that must not be translated) are configured the same way, in
+`config/html-translator.php`, and picked with `->profile('name')`.
 
 ## Translation states
 The plugin tracks one state per record, attribute and target locale: `missing`, `machine` or `reviewed`. A
@@ -154,8 +209,58 @@ HtmlTranslatorPlugin::make()
 $panel->databaseNotifications();   // the editor is told when a job (or a bulk batch) is done
 ```
 
-- Run a queue worker (`php artisan queue:work --queue=translations`). Bulk runs use job batches, so they need the
-  `job_batches` table.
+Without `->queue()` the record and bulk actions translate during the request, and the editor waits for the result.
+The field action (`translateWithAi()`) always translates during the request, because it fills the form.
+
+### Running the worker
+With `->queue()` the translate action only **dispatches a job**: nothing is translated until a queue worker runs it.
+The worker must listen on two queues:
+
+- the plugin's queue: the `queueName` you passed, or the connection's default queue (`default`) when you passed none;
+- the connection's default queue, usually `default`: Filament's database notifications ("Draft translation ready",
+  "The translation could not be finished") are queued jobs too, and Filament puts them there.
+
+```bash
+# The example above (queueName: 'translations'):
+php artisan queue:work --queue=translations,default
+
+# Without a queueName both are the default queue:
+php artisan queue:work
+```
+
+A worker started as plain `php artisan queue:work` (or `queue:listen`) listens only on `default`, so jobs on
+`translations` wait in the queue forever and no error is shown. Pass the same connection the plugin uses as the first
+argument when it is not your `QUEUE_CONNECTION` (`php artisan queue:work redis --queue=translations,default`).
+
+- **Development:** `php artisan queue:listen --queue=translations,default` reloads the code and configuration for every
+  job. Run the worker in the same environment as the application (e.g. `./vendor/bin/sail artisan …` with Sail), so
+  it uses the same database, PHP extensions and `.env`.
+- **Production:** keep `queue:work` running under a process manager (Supervisor, systemd) and run
+  `php artisan queue:restart` after every deployment and every `.env` change.
+- **Tables:** the `database` connection needs the `jobs` table; bulk runs use job batches (`job_batches`), and failed
+  jobs go to `failed_jobs`. New Laravel applications have all three; otherwise run `php artisan make:queue-table`,
+  `php artisan make:queue-batches-table`, `php artisan make:queue-failed-table` and `php artisan migrate`.
+
+### Seeing the result
+1. After the click the editor sees "Translation started". The form does not change yet.
+2. The worker translates the record (seconds to a minute, depending on the model and the length of the text), saves
+   the translation and marks it `machine`.
+3. A database notification ("Draft translation ready") appears in the panel's bell. Filament checks for new notifications every 30 seconds
+   (`$panel->databaseNotificationsPolling('10s')` to change it).
+4. Reload the edit page and switch to the target locale to see the draft.
+
+### Nothing happens after clicking?
+| Symptom | Cause | Fix |
+|---|---|---|
+| No translation, no notification, rows waiting in the `jobs` table | No worker on the plugin's queue | `php artisan queue:work --queue=translations,default` |
+| Translation saved, but no notification | The worker does not listen on `default` | Add `default` to `--queue` |
+| "The translation could not be finished" notification (after 3 attempts, about a minute) | Provider not configured, or it rejected the request (key, model, quota) | `php artisan html-translator:check --ping`; details in the log and `php artisan queue:failed` |
+| The text came back with accented letters | The `pseudo` provider is the default | Set a real provider, see [Choosing a provider and a model](#choosing-a-provider-and-a-model) |
+| A new key or model is ignored | The worker or the config cache holds the old configuration | `php artisan config:clear` (or `config:cache`), then `php artisan queue:restart` |
+
+`php artisan queue:monitor database:translations` shows how many jobs are waiting.
+
+### Behaviour
 - One record and locale is never translated twice at the same time (`WithoutOverlapping`). Failed jobs notify the
   editor with a generic message; exception details stay in the logs.
 - Relation managers that show translations should `use HtmlTranslator\Filament\Concerns\RefreshesAfterTranslation;`,
