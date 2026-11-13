@@ -6,6 +6,7 @@ namespace HtmlTranslator\Filament;
 
 use Filament\Forms\Components\Field;
 use HtmlTranslator\Filament\Actions\TranslateFieldAction;
+use HtmlTranslator\Filament\Console\MarkReviewedCommand;
 use HtmlTranslator\Filament\Console\TranslateCommand;
 use HtmlTranslator\Filament\Contracts\TranslationStateStore;
 use HtmlTranslator\Filament\Stores\EloquentTranslationStateStore;
@@ -34,7 +35,7 @@ final class HtmlTranslatorFilamentServiceProvider extends ServiceProvider
         $this->loadTranslationsFrom(__DIR__ . '/../lang', self::TRANSLATION_NAMESPACE);
 
         if ($this->app->runningInConsole()) {
-            $this->commands([TranslateCommand::class]);
+            $this->commands([TranslateCommand::class, MarkReviewedCommand::class]);
         }
 
         // `->translateWithAi()` on any form field; `->hintAction(TranslateFieldAction::make())` is the explicit form.

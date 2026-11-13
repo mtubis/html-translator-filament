@@ -8,13 +8,12 @@ use HtmlTranslator\Filament\Contracts\TracksTranslations;
 use HtmlTranslator\Filament\Contracts\TranslationStateStore;
 use HtmlTranslator\Filament\Enums\OverwritePolicy;
 use HtmlTranslator\Filament\Exceptions\InvalidPluginConfigurationException;
+use HtmlTranslator\Filament\Support\RelatedRecords;
 use HtmlTranslator\Filament\Support\TranslationDefaults;
 use HtmlTranslator\Filament\Support\TranslationLocales;
 use HtmlTranslator\TranslationStats;
 use Illuminate\Database\ConnectionResolverInterface;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use InvalidArgumentException;
 
 /**
  * Translates the source-locale values of a record (and of the relations asked for) into one target locale.
@@ -49,7 +48,7 @@ final readonly class TranslateRecord
         /** @var list<array{model: Model&TracksTranslations, attribute: string, source: string, value: string}> $writes */
         $writes = [];
 
-        foreach ([$record, ...$this->related($record, $relations)] as $model) {
+        foreach ([$record, ...RelatedRecords::of($record, $relations)] as $model) {
             foreach ($model->getTranslatableAttributes() as $attribute) {
                 [$outcome, $write, $stat] = $this->translateAttribute($model, $attribute, $locale, $policy);
                 $outcomes[] = $outcome;
@@ -85,7 +84,7 @@ final readonly class TranslateRecord
         $this->assertTarget($locale);
 
         $outcomes = [];
-        foreach ([$record, ...$this->related($record, $relations)] as $model) {
+        foreach ([$record, ...RelatedRecords::of($record, $relations)] as $model) {
             foreach ($model->getTranslatableAttributes() as $attribute) {
                 $check = $this->check($model, $attribute, $locale, $policy);
                 $outcomes[] = $check instanceof AttributeOutcome
@@ -199,41 +198,6 @@ final readonly class TranslateRecord
         });
     }
 
-
-    /**
-     * @param list<string> $relations
-     *
-     * @return list<Model&TracksTranslations>
-     */
-    private function related(Model $record, array $relations): array
-    {
-        $models = [];
-        foreach ($relations as $name) {
-            if (! $record->isRelation($name)) {
-                throw new InvalidArgumentException(\sprintf('html-translator: "%s" is not a relation of %s.', $name, $record::class));
-            }
-
-            // Fresh from the database: a relation loaded earlier may be stale.
-            $results = $record->unsetRelation($name)->getRelationValue($name);
-            foreach ($results instanceof Collection ? $results->all() : [$results] as $related) {
-                if ($related === null) {
-                    continue;
-                }
-
-                if (! $related instanceof Model || ! $related instanceof TracksTranslations) {
-                    throw new InvalidArgumentException(\sprintf(
-                        'html-translator: the relation "%s" returns %s, which does not implement TracksTranslations.',
-                        $name,
-                        get_debug_type($related),
-                    ));
-                }
-
-                $models[] = $related;
-            }
-        }
-
-        return $models;
-    }
 
     private function key(Model $model): int|string
     {

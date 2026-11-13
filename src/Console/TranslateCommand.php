@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace HtmlTranslator\Filament\Console;
 
+use HtmlTranslator\Filament\Console\Concerns\SelectsRecords;
 use HtmlTranslator\Filament\Contracts\TracksTranslations;
 use HtmlTranslator\Filament\Enums\OverwritePolicy;
-use HtmlTranslator\Filament\Exceptions\InvalidPluginConfigurationException;
 use HtmlTranslator\Filament\Jobs\TranslateRecordJob;
 use HtmlTranslator\Filament\Support\TranslationDefaults;
 use HtmlTranslator\Filament\Support\TranslationLocales;
@@ -16,9 +16,7 @@ use HtmlTranslator\Filament\Translation\TranslateRecord;
 use HtmlTranslator\Filament\Translation\TranslationBatch;
 use HtmlTranslator\Filament\Translation\TranslationReport;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use InvalidArgumentException;
 
 /**
@@ -28,6 +26,8 @@ use InvalidArgumentException;
  */
 final class TranslateCommand extends Command
 {
+    use SelectsRecords;
+
     private const array POLICIES = [
         'only-missing' => OverwritePolicy::OnlyMissing,
         'overwrite-machine' => OverwritePolicy::OverwriteMachine,
@@ -239,52 +239,6 @@ final class TranslateCommand extends Command
         ));
     }
 
-    /**
-     * @return list<class-string<Model&TracksTranslations>>
-     */
-    private function models(): array
-    {
-        $models = [];
-        foreach ((array) $this->argument('models') as $name) {
-            if (! \is_string($name)) {
-                continue;
-            }
-
-            $class = Relation::getMorphedModel($name) ?? $name;
-            if (! class_exists($class) || ! is_subclass_of($class, Model::class)) {
-                throw new InvalidArgumentException(\sprintf('"%s" is neither an Eloquent model class nor a morph alias.', $name));
-            }
-
-            if (! is_subclass_of($class, TracksTranslations::class)) {
-                throw new InvalidArgumentException(\sprintf('%s does not implement %s.', $class, TracksTranslations::class));
-            }
-
-            /** @var class-string<Model&TracksTranslations> $class */
-            $models[] = $class;
-        }
-
-        return $models;
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function targets(TranslationLocales $locales): array
-    {
-        if (! $locales->isConfigured()) {
-            throw new InvalidArgumentException('The html-translator plugin is not registered on a Filament panel, so it has no locales.');
-        }
-
-        $requested = array_values(array_filter((array) $this->option('locale'), \is_string(...)));
-        foreach ($requested as $locale) {
-            if (! \in_array($locale, $locales->targets(), true)) {
-                throw new InvalidArgumentException(InvalidPluginConfigurationException::notATargetLocale($locale, $locales->targets())->getMessage());
-            }
-        }
-
-        return $requested === [] ? $locales->targets() : array_values(array_unique($requested));
-    }
-
     private function policy(): OverwritePolicy
     {
         $name = $this->option('policy');
@@ -347,27 +301,6 @@ final class TranslateCommand extends Command
         } finally {
             $defaults->configure(...$previous);
         }
-    }
-
-    /**
-     * @param class-string<Model&TracksTranslations> $model
-     *
-     * @return Builder<Model&TracksTranslations>
-     */
-    private function query(string $model): Builder
-    {
-        /** @var Builder<Model&TracksTranslations> $query */
-        $query = $model::query();
-        $ids = array_values(array_filter((array) $this->option('id'), \is_string(...)));
-
-        return $ids === [] ? $query : $query->whereKey($ids);
-    }
-
-    private function label(Model $record): string
-    {
-        $key = $record->getKey();
-
-        return \sprintf('%s #%s', $record->getMorphClass(), \is_scalar($key) ? (string) $key : '?');
     }
 
     private static function attributeLabel(Model $record, AttributeOutcome $outcome): string

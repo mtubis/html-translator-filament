@@ -97,10 +97,10 @@ Then click **Mark as reviewed**. The confirmation says how many of the translati
 you have checked them against the current source text. Afterwards they are *Reviewed* and no longer *Stale*.
 
 ### From the command line
-Developers or administrators can translate many records at once with
-`php artisan html-translator-filament:translate`, see [Command line](#command-line). The results are drafts, exactly
-as from the panel: review them as described above. A command for marking many translations as reviewed is planned
-for version 0.2.
+Developers or administrators can work on many records at once (see [Command line](#command-line)):
+`html-translator-filament:translate` makes drafts, exactly as from the panel, and after the drafts were checked,
+`html-translator-filament:mark-reviewed` marks them as reviewed on behalf of a named reviewer. Stale translations are
+not marked unless the reviewer says they were checked against the current source text.
 
 ## Requirements
 PHP 8.4+, Laravel 13, Filament 5, `mtubis/html-translator-laravel` ^0.2 (installed with the plugin). The translations
@@ -404,6 +404,29 @@ use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('html-translator-filament:translate', ['post', '--no-interaction'])->dailyAt('02:00');
 ```
+
+### Marking translations as reviewed
+The typical flow: translate, check the drafts (in the panel, or with whoever reviews them), then mark them reviewed:
+
+```bash
+php artisan html-translator-filament:mark-reviewed post --reviewer=editor@example.com --dry-run   # what would be marked
+php artisan html-translator-filament:mark-reviewed post --reviewer=editor@example.com             # asks to confirm
+```
+
+| Option | Meaning |
+|---|---|
+| `--reviewer=` | Required. The user who reviewed the translations: user ID or e-mail address (default auth guard). Stored as the reviewer, like **Mark as reviewed** in the panel. |
+| `--locale=`, `--relations=`, `--id=` | As for `translate`. |
+| `--include-stale` | Also mark stale translations (their source text changed after translation). Use it only after checking them against the current source; they are then accepted for it and no longer stale. |
+| `--dry-run` | Lists the translations that would be marked and the stale ones left out; changes nothing. |
+| `--force` | Mark without the confirmation question (required with `--no-interaction`). |
+
+- **What is marked:** the same as **Mark as reviewed** in the panel: machine drafts and translations written by hand.
+  Empty translations and reviewed translations whose source has not changed are left alone.
+- **Stale translations** are left out by default and listed as *stale, not marked*, so "reviewed" never silently
+  covers a text that was checked against an older source.
+- Each record (with its relations) is marked in one database transaction. Exit code 1 for an unknown model, locale
+  or reviewer, a missing `--reviewer`, or a refused confirmation.
 
 ## Interface languages
 The plugin's buttons, forms, states and notifications follow the application locale (`app()->getLocale()`), like

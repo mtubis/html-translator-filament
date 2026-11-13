@@ -10,6 +10,9 @@ While the version is 0.x, a minor version may change the public API; this file s
 - `php artisan html-translator-filament:translate`: translate the records of one or more models (class names or morph
   aliases) into the target locales, with `--policy`, `--locale`, `--relations`, `--id`, `--dry-run`, `--queue`,
   `--provider` / `--profile` and `--fail-on-incomplete` (#2).
+- `php artisan html-translator-filament:mark-reviewed`: mark the translations of many records as reviewed on behalf of
+  a reviewer (`--reviewer`, required), with a confirmation, `--dry-run`, and stale translations left out unless
+  `--include-stale` (#2).
 - `TranslateRecord::preview()`: what a translation would do, without calling the translator.
 - German (`lang/de`) and Polish (`lang/pl`) interface translations, reviewed by speakers of both languages (#4).
 - Plural forms for texts with a count ("1 translation marked as reviewed" / "2 translations …"), including Polish's
@@ -24,6 +27,7 @@ While the version is 0.x, a minor version may change the public API; this file s
   corrected by hand after the source changed. Stale reviewed translations can be reviewed again (#3).
 
 ### Changed
+- Relation loading for translating and reviewing is shared (`Support\RelatedRecords`); no behaviour change.
 - The status column keeps the state visible when a translation is stale: `EN · Reviewed` and a separate `EN · Stale`
   badge with a tooltip giving the reason, instead of `EN · Stale` alone.
 - The **Mark as reviewed** confirmation says how many of the translations are stale; the success notification
