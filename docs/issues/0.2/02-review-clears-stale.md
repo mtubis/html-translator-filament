@@ -31,6 +31,12 @@ as a known limitation of 0.1.
 - **API:** `TranslationStateStore::markReviewedAll()` gets a parameter that says whether stale translations are
   included (the panel passes `true`, the command passes `--include-stale`). The interface is public: a custom store
   must add it, so the CHANGELOG lists this under *Changed* for 0.2.
+- **Status badge: keep "reviewed" visible when it is stale.** Today the column shows only the worst state, so a
+  reviewed translation whose source changed shows just *Stale*, and the editor loses the information that someone
+  checked the previous version. Show both, e.g. `EN · Reviewed` next to `EN · Stale` (or one badge
+  `EN · Reviewed · Stale`, whichever reads better in Filament), and the same for a stale machine draft.
+- **Tooltip with the reason** on a stale badge: "The source text changed after the last translation." (German:
+  "Der Ausgangstext wurde seit der letzten Übersetzung geändert."), a new key in every shipped language.
 - README: remove the *Known limitation (0.1)* note from the editor guide; "When the source text changes" describes
   both ways: a new AI draft, or a correction by hand, followed by **Mark as reviewed**.
 
@@ -43,5 +49,7 @@ as a known limitation of 0.1.
   - a hand-written translation (`missing` state with a value) behaves as in 0.1.
 - [ ] Livewire test on the workbench: change the source, correct the target by hand, **Mark as reviewed** → the
       status column shows *Reviewed*; the confirmation mentions the stale count.
+- [ ] Column test: a reviewed translation whose source changed shows both *Reviewed* and *Stale*; the stale badge
+      has the tooltip; the language-file parity test covers the new key.
 - [ ] README editor guide updated; CHANGELOG under `[Unreleased]` (*Fixed*, and *Changed* for the interface).
 - [ ] `composer check` green.
