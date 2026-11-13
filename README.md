@@ -8,7 +8,7 @@ actions, a review workflow (`machine` → `reviewed`) and stale-translation dete
 - **Developers:** [Requirements](#requirements), [Installation](#installation),
   [Choosing a provider and a model](#choosing-a-provider-and-a-model), [Queue](#queue), [Command line](#command-line).
 
-> **Status:** 0.1. The public API may still change in 0.x minor versions; the
+> **Status:** 0.2. The public API may still change in 0.x minor versions; the
 > [CHANGELOG](CHANGELOG.md) says how. Plans: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Translating in the panel (for editors)
@@ -123,7 +123,7 @@ $panel->plugin(
         ->locales(['es', 'en'])       // source + targets
         ->profile('site')             // an entry of config/html-translator.php; null = the package default
         ->provider(null)              // likewise
-        ->queue(),                    // translate in queued jobs (0.1 #5)
+        ->queue(),                    // translate in queued jobs, see Queue
 );
 ```
 

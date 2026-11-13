@@ -6,6 +6,18 @@ While the version is 0.x, a minor version may change the public API; this file s
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-13
+
+Translate and review whole sites from the command line, see at a glance which reviewed translations are out of date,
+and use the panel in seven languages.
+
+### Upgrading
+- **Custom `TranslationStateStore` implementations** must add the `bool $includeStale = true` parameter to
+  `markReviewedAll()` and implement the new `reviewable()` method. Applications using the shipped Eloquent store need
+  no change.
+- The status column now shows a separate *Stale* badge next to the state (`EN · Reviewed` `EN · Stale`). Tests that
+  assert the column state get one more item for stale records.
+
 ### Added
 - `php artisan html-translator-filament:translate`: translate the records of one or more models (class names or morph
   aliases) into the target locales, with `--policy`, `--locale`, `--relations`, `--id`, `--dry-run`, `--queue`,
@@ -13,31 +25,27 @@ While the version is 0.x, a minor version may change the public API; this file s
 - `php artisan html-translator-filament:mark-reviewed`: mark the translations of many records as reviewed on behalf of
   a reviewer (`--reviewer`, required), with a confirmation, `--dry-run`, and stale translations left out unless
   `--include-stale` (#2).
+- Interface languages: German and Polish (#4), French, Ukrainian and Chinese (Mandarin, Simplified) (#5), next to
+  English and Spanish. The README lists who reviewed each language; native input is welcome.
+- Plural forms for texts with a count, by each language's rules (Polish and Ukrainian have three).
+- A tooltip on the *Stale* badge explaining why the translation is out of date.
 - `TranslateRecord::preview()`: what a translation would do, without calling the translator.
-- German (`lang/de`) and Polish (`lang/pl`) interface translations, reviewed by speakers of both languages (#4).
-- French (`lang/fr`), Ukrainian (`lang/uk`) and Chinese (`lang/zh_CN`) interface translations (#5). README lists the
-  review status of every language; native input is welcome.
-- Plural forms for texts with a count ("1 translation marked as reviewed" / "2 translations …"), including Polish's
-  three forms.
-- README: **Interface languages**, how to change a text or add a language.
-- A test that every interface language has the English keys and placeholders.
 - README: **Translating in the panel (for editors)**, a step-by-step guide for the people who translate and review
-  content: states and badges, translating a record, a field or many records, reviewing, stale translations.
+  content; **Command line**; **Interface languages**, with how to change a text or add a language.
 
 ### Fixed
 - **Mark as reviewed** clears *Stale*: reviewing accepts a translation for the current source text, also when it was
   corrected by hand after the source changed. Stale reviewed translations can be reviewed again (#3).
 
 ### Changed
-- Relation loading for translating and reviewing is shared (`Support\RelatedRecords`); no behaviour change.
-- The status column keeps the state visible when a translation is stale: `EN · Reviewed` and a separate `EN · Stale`
-  badge with a tooltip giving the reason, instead of `EN · Stale` alone.
+- The status column keeps the state visible when a translation is stale (see *Upgrading*).
 - The **Mark as reviewed** confirmation says how many of the translations are stale; the success notification
   counts them.
-- `TranslationStateStore` (breaking for custom implementations): `markReviewedAll()` takes `bool $includeStale = true`,
-  and the new `reviewable()` lists what it would mark. `markReviewed()` and `markReviewedAll()` store the current
-  source hash.
-- The bulk action builds its job batch with the new `TranslationBatch` class (no behaviour change).
+- `TranslationStateStore::markReviewed()` and `markReviewedAll()` store the current source hash (see *Upgrading* for
+  the new parameter and method).
+- Spanish texts revised: "Borrador" for machine drafts, "texto de origen" throughout.
+- Internal: the bulk action and the translate command share `TranslationBatch`; translating and reviewing share
+  `Support\RelatedRecords`. No behaviour change.
 
 ## [0.1.2] - 2026-11-13
 
@@ -87,7 +95,8 @@ translations are missing, unreviewed or stale.
   translations, keys or exception details from outside the translator.
 - English and Spanish UI strings.
 
-[Unreleased]: https://github.com/mtubis/html-translator-filament/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/mtubis/html-translator-filament/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/mtubis/html-translator-filament/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/mtubis/html-translator-filament/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/mtubis/html-translator-filament/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/mtubis/html-translator-filament/releases/tag/v0.1.0
