@@ -52,8 +52,7 @@ whole record (and its related items, if the application counts them): the worst 
      translated, skipped, incomplete or failed.
    - **In the background** (queued): a notification says *Translation started*. When the draft is ready, *Draft
      translation ready* (or *finished with problems*) appears under the bell icon of the panel (it can take up to a
-     minute). **Reload the page** to
-     see the draft. (From version 0.3 the page will update by itself.)
+     minute). **Reload the page** to see the draft. (From version 0.3 the page will update by itself.)
 
 If a text could not be translated completely, the notification lists the problems and the old value stays in place.
 Try again later, or translate that text yourself.
