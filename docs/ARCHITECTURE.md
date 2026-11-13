@@ -62,11 +62,13 @@ TranslationStatusColumn::make()       // badge per locale: missing | machine | r
   4. actions + status column;
   5. queue + notifications;
   6. field action.
-- **0.2**: issues in `docs/issues/0.2/`, starting with 1. show a queued translation without reloading the edit page
-  (polling while a job runs, a button in the notification). Then: "Translations" page (issues, token usage, stale), an
-  action form with provider / profile / target locales, side-by-side diff; switch to `html-translator-laravel` 0.3
-  jobs/events.
-- **0.3**: repeaters, Builder blocks, other storage targets.
+- **0.2**: `html-translator-filament:translate` Artisan command (`docs/issues/0.2/`).
+- **0.3**: show a queued translation without reloading the edit page: polling while a job runs, a button in the
+  notification (`docs/issues/0.3/`).
+- **0.4**: "Translations" page (issues, token usage, stale), an action form with provider / profile / target locales,
+  side-by-side diff.
+- **Later**: switch to `html-translator-laravel` 0.3 jobs/events (when the package has them); repeaters, Builder
+  blocks, other storage targets.
 
 ## Development setup
 In the site repository:
