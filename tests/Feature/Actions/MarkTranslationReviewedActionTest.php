@@ -69,6 +69,29 @@ final class MarkTranslationReviewedActionTest extends TestCase
     }
 
     #[Test]
+    public function a_hand_corrected_stale_translation_is_reviewed_and_no_longer_stale(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $post = Post::factory()->create(['title' => ['es' => 'Hola', 'en' => 'Hello'], 'body' => null]);
+        $store = resolve(TranslationStateStore::class);
+        $store->markMachine($post, 'title', 'en', 'Hola', null, null);
+        $store->markReviewed($post, 'title', 'en', null);
+        $post->setTranslation('title', 'es', 'Buenas tardes')->setTranslation('title', 'en', 'Good afternoon')->save();
+
+        $page = Livewire::test(EditPost::class, ['record' => $post->getRouteKey()])
+            ->set('activeLocale', 'en')
+            ->mountAction(TestAction::make('markTranslationReviewed'));
+        $page->assertMountedActionModalSee('1 of them is stale');
+        $page->callMountedAction();
+
+        $state = $post->translationState('title', 'en');
+        self::assertInstanceOf(TranslationState::class, $state);
+        self::assertSame(TranslationStatus::Reviewed, $state->status);
+        self::assertFalse($store->isStale($state));
+        Notification::assertNotified('1 translation marked as reviewed.');
+    }
+
+    #[Test]
     public function it_is_hidden_while_editing_the_source_locale(): void
     {
         $this->actingAs(User::factory()->create());

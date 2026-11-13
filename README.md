@@ -27,15 +27,17 @@ Labels below are the plugin's English ones. The panel shows them in its own lang
   the source text changes later.
 
 ### Translation states
-The **Translation** column of a table shows one badge per target language, e.g. `EN · Machine`. The badge sums up the
-whole record (and its related items, if the application counts them): the worst state wins.
+The **Translation** column of a table shows the state of each target language, e.g. `EN · Machine`. It sums up the
+whole record (and its related items, if the application counts them): the least advanced state wins. When a source
+text changed after it was translated, a red **Stale** badge appears next to it, e.g. `EN · Reviewed` `EN · Stale`;
+hover it to see why.
 
 | Badge | Meaning | What to do |
 |---|---|---|
 | **Not translated** (grey) | At least one text has no translation in this language. | Generate a draft, or write the translation yourself. |
 | **Machine** (yellow) | Translated by AI, not reviewed yet. | Read it, correct it, mark it as reviewed. |
-| **Stale** (red) | The source text changed after it was translated, so the translation may be out of date. | Update the translation (see [When the source text changes](#when-the-source-text-changes)). |
 | **Reviewed** (green) | Accepted by a person. | Nothing. |
+| **Stale** (red, next to one of the above) | The source text changed after it was translated, so the translation may be out of date. | Update the translation (see [When the source text changes](#when-the-source-text-changes)). |
 
 ### Translate one record
 1. Open the record for editing and switch the form to the **target language** (the language switcher of the edit
@@ -81,19 +83,18 @@ a note of who reviewed it and when. Empty texts stay *Not translated*.
 You do not have to use AI. Switch to the target language, type the translation, **Save**, then **Mark as reviewed**.
 
 ### When the source text changes
-When someone edits the source text, its translations get the **Stale** badge. A reviewed translation stays visible as
-it is (it is never removed or downgraded automatically), but it may no longer match the source.
+When someone edits the source text, its translations get the **Stale** badge next to their state. A reviewed
+translation stays visible as it is (it is never removed or downgraded automatically), but it may no longer match the
+source.
 
-To update it:
-1. In the target language, click **Translate** next to the changed field (or run **Generate draft translation** with
-   *Also replace machine translations*, or *Also replace reviewed translations* when the old translation was
-   reviewed).
-2. Check and correct the new draft, **Save**.
-3. Click **Mark as reviewed**.
+Update it in one of two ways, in the target language:
+- **Correct it yourself:** compare it with the new source text, change what needs changing, **Save**.
+- **Start from a new draft:** click **Translate** next to the changed field, or run **Generate draft translation**
+  with *Also replace machine translations* (or *Also replace reviewed translations* when the old translation was
+  reviewed). Check and correct the draft, **Save**.
 
-> **Known limitation (0.1):** correcting a stale translation by hand and clicking **Mark as reviewed** does not
-> clear the *Stale* badge. Use the **Translate** button of the field first (step 1), then correct the draft.
-> To be fixed in 0.2 ([#3](https://github.com/mtubis/html-translator-filament/issues/3)).
+Then click **Mark as reviewed**. The confirmation says how many of the translations are stale: confirm only when
+you have checked them against the current source text. Afterwards they are *Reviewed* and no longer *Stale*.
 
 ### From the command line
 Developers or administrators can translate many records at once with
@@ -215,6 +216,11 @@ reviewed translation is never downgraded.
 
 `HtmlTranslator\Filament\Contracts\TranslationStateStore` is the API for reading and writing states. Bind your own
 implementation to keep them elsewhere.
+
+Reviewing accepts a translation for the current source text: `markReviewed()` and `markReviewedAll()` store the
+current source hash, so a stale translation is no longer stale once reviewed. `reviewable($record, $locale,
+includeStale: false)` lists what `markReviewedAll()` would mark, leaving out stale translations; pass the same flag to
+`markReviewedAll()` to review only translations whose source has not changed.
 
 ## Translating a record
 `TranslateRecord` translates the source-locale values of a record, and of the relations you name, into one target

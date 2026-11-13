@@ -70,39 +70,41 @@ final readonly class EloquentTranslationStateStore implements TranslationStateSt
         ?int $reviewerId,
     ): TranslationState {
         $state = $this->state($record, $attribute, $locale);
-        $state->fill([
-            'status' => TranslationStatus::Reviewed,
-            'reviewed_at' => Carbon::now(),
-            'reviewed_by' => $reviewerId,
-        ])->save();
+        $state->fill($this->reviewedChanges($record, $attribute, $reviewerId))->save();
 
         return $state;
     }
 
-    public function markReviewedAll(Model&TracksTranslations $record, string $locale, ?int $reviewerId): int
+    public function markReviewedAll(Model&TracksTranslations $record, string $locale, ?int $reviewerId, bool $includeStale = true): int
     {
-        $count = 0;
-        foreach ($record->translationStates()->where('locale', $locale)->get() as $state) {
-            $changes = ['status' => TranslationStatus::Reviewed, 'reviewed_at' => Carbon::now(), 'reviewed_by' => $reviewerId];
-
-            if ($state->status === TranslationStatus::Missing) {
-                // A translation written by hand: reviewable once it has a value. It was made from the current source.
-                $target = $record->getTranslation($state->attribute, $locale, false);
-                if (! \is_string($target) || trim($target) === '') {
-                    continue;
-                }
-
-                $source = $record->getTranslation($state->attribute, $this->locales->source(), false);
-                $changes['source_hash'] = TranslationState::hashSource(\is_string($source) ? $source : null);
-            } elseif ($state->status !== TranslationStatus::Machine) {
-                continue;
-            }
-
-            $state->fill($changes)->save();
-            ++$count;
+        $states = $this->reviewable($record, $locale, $includeStale);
+        foreach ($states as $state) {
+            $state->fill($this->reviewedChanges($record, $state->attribute, $reviewerId))->save();
         }
 
-        return $count;
+        return \count($states);
+    }
+
+    public function reviewable(Model&TracksTranslations $record, string $locale, bool $includeStale = true): array
+    {
+        $reviewable = [];
+        foreach ($record->translationStates()->where('locale', $locale)->orderBy('id')->get() as $state) {
+            $current = $state->source_hash === $this->sourceHash($record, $state->attribute);
+
+            $include = match ($state->status) {
+                // A translation written by hand: reviewable once it has a value. It was made from the current source.
+                TranslationStatus::Missing => $this->hasValue($record, $state->attribute, $locale),
+                TranslationStatus::Machine => $current || $includeStale,
+                // Reviewed and current: nothing to do. Reviewed but stale: accepted again for the new source.
+                TranslationStatus::Reviewed => ! $current && $includeStale,
+            };
+
+            if ($include) {
+                $reviewable[] = $state;
+            }
+        }
+
+        return $reviewable;
     }
 
     public function isStale(TranslationState $state): bool
@@ -120,6 +122,35 @@ final readonly class EloquentTranslationStateStore implements TranslationStateSt
             ->where('translatable_type', $morphType)
             ->whereIn('translatable_id', $ids)
             ->delete();
+    }
+
+    /**
+     * Reviewing accepts the translation for the current source text, so the stored hash follows it.
+     *
+     * @return array<string, mixed>
+     */
+    private function reviewedChanges(Model&TracksTranslations $record, string $attribute, ?int $reviewerId): array
+    {
+        return [
+            'status' => TranslationStatus::Reviewed,
+            'reviewed_at' => Carbon::now(),
+            'reviewed_by' => $reviewerId,
+            'source_hash' => $this->sourceHash($record, $attribute),
+        ];
+    }
+
+    private function sourceHash(Model&TracksTranslations $record, string $attribute): ?string
+    {
+        $source = $record->getTranslation($attribute, $this->locales->source(), false);
+
+        return TranslationState::hashSource(\is_string($source) ? $source : null);
+    }
+
+    private function hasValue(Model&TracksTranslations $record, string $attribute, string $locale): bool
+    {
+        $value = $record->getTranslation($attribute, $locale, false);
+
+        return \is_string($value) && trim($value) !== '';
     }
 
     private function state(Model&TracksTranslations $record, string $attribute, string $locale): TranslationState

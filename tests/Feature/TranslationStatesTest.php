@@ -144,6 +144,91 @@ final class TranslationStatesTest extends TestCase
     }
 
     #[Test]
+    public function mark_reviewed_accepts_the_current_source(): void
+    {
+        $post = Post::factory()->create(['title' => ['es' => 'Hola']]);
+        $this->store()->markMachine($post, 'title', 'en', 'Hola', null, null);
+        $post->setTranslation('title', 'es', 'Buenas')->save();
+
+        $state = $this->store()->markReviewed($post, 'title', 'en', null);
+
+        self::assertSame(hash('sha256', 'Buenas'), $state->source_hash);
+        self::assertFalse($this->stale($post, 'title'));
+    }
+
+    #[Test]
+    public function reviewing_a_stale_machine_draft_clears_stale(): void
+    {
+        $post = $this->postWithEnglishTitle('machine');
+        $post->setTranslation('title', 'es', 'Buenas')->save();
+
+        self::assertSame(1, $this->store()->markReviewedAll($post, 'en', null));
+
+        self::assertSame(TranslationStatus::Reviewed, $post->translationState('title', 'en')?->status);
+        self::assertFalse($this->stale($post, 'title'));
+    }
+
+    #[Test]
+    public function reviewing_a_stale_reviewed_translation_again_records_the_new_reviewer(): void
+    {
+        $first = $this->user('first@example.com');
+        $second = $this->user('second@example.com');
+        $post = $this->postWithEnglishTitle('reviewed', $first);
+        $post->setTranslation('title', 'es', 'Buenas')->setTranslation('title', 'en', 'Good afternoon')->save();
+        $this->travel(1)->hours();
+
+        self::assertSame(1, $this->store()->markReviewedAll($post, 'en', $second));
+
+        $state = $post->translationState('title', 'en');
+        self::assertInstanceOf(TranslationState::class, $state);
+        self::assertSame($second, $state->reviewed_by);
+        self::assertTrue($state->reviewed_at?->isAfter(now()->subMinute()) ?? false);
+        self::assertFalse($this->stale($post, 'title'));
+    }
+
+    #[Test]
+    public function a_current_reviewed_translation_is_left_alone(): void
+    {
+        $first = $this->user('first@example.com');
+        $post = $this->postWithEnglishTitle('reviewed', $first);
+        $before = DB::table('translation_states')->orderBy('id')->get()->all();
+
+        self::assertSame(0, $this->store()->markReviewedAll($post, 'en', $this->user('second@example.com')));
+
+        self::assertEquals($before, DB::table('translation_states')->orderBy('id')->get()->all());
+    }
+
+    #[Test]
+    public function stale_translations_can_be_excluded(): void
+    {
+        $machine = $this->postWithEnglishTitle('machine');
+        $reviewed = $this->postWithEnglishTitle('reviewed');
+        $machine->setTranslation('title', 'es', 'Buenas')->save();
+        $reviewed->setTranslation('title', 'es', 'Buenas')->save();
+        $before = DB::table('translation_states')->orderBy('id')->get()->all();
+
+        self::assertSame([], $this->store()->reviewable($machine, 'en', includeStale: false));
+        self::assertSame(0, $this->store()->markReviewedAll($machine, 'en', null, includeStale: false));
+        self::assertSame(0, $this->store()->markReviewedAll($reviewed, 'en', null, includeStale: false));
+
+        self::assertEquals($before, DB::table('translation_states')->orderBy('id')->get()->all());
+    }
+
+    #[Test]
+    public function reviewable_lists_what_mark_reviewed_all_would_mark(): void
+    {
+        $post = Post::factory()->create(['title' => ['es' => 'Hola'], 'body' => ['es' => '<p>Hola</p>']]);
+        $post->setTranslation('title', 'en', 'Hello')->save();
+        $this->store()->markMachine($post, 'title', 'en', 'Hola', null, null);
+        $post->setTranslation('title', 'es', 'Buenas')->save();
+
+        $reviewable = $this->store()->reviewable($post, 'en');
+
+        self::assertSame(['title'], array_map(static fn(TranslationState $state): string => $state->attribute, $reviewable));
+        self::assertSame(\count($reviewable), $this->store()->markReviewedAll($post, 'en', null));
+    }
+
+    #[Test]
     public function there_is_one_state_per_record_attribute_and_locale(): void
     {
         $post = Post::factory()->create();
@@ -201,6 +286,22 @@ final class TranslationStatesTest extends TestCase
     private function store(): TranslationStateStore
     {
         return resolve(TranslationStateStore::class);
+    }
+
+    private function postWithEnglishTitle(string $status, ?int $reviewer = null): Post
+    {
+        $post = Post::factory()->create(['title' => ['es' => 'Hola', 'en' => 'Hello'], 'body' => null]);
+        $this->store()->markMachine($post, 'title', 'en', 'Hola', null, null);
+        if ($status === 'reviewed') {
+            $this->store()->markReviewed($post, 'title', 'en', $reviewer);
+        }
+
+        return $post;
+    }
+
+    private function user(string $email): int
+    {
+        return DB::table('users')->insertGetId(['name' => 'Editor', 'email' => $email, 'password' => 'x']);
     }
 
     private function stale(Post $post, string $attribute): bool

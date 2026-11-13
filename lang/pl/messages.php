@@ -32,6 +32,8 @@ return [
             'label' => 'Oznacz jako sprawdzone',
             'heading' => 'Oznaczyć szkice tłumaczeń jako sprawdzone?',
             'done' => 'Oznaczono :count tłumaczenie jako sprawdzone.|Oznaczono :count tłumaczenia jako sprawdzone.|Oznaczono :count tłumaczeń jako sprawdzone.',
+            'stale_warning' => 'Nieaktualne tłumaczenia: :count. Tekst źródłowy się zmienił. Przed oznaczeniem tłumaczeń jako sprawdzonych porównaj je z aktualnym tekstem źródłowym.',
+            'done_stale' => 'W tym :count tłumaczenie, które było nieaktualne.|W tym :count tłumaczenia, które były nieaktualne.|W tym :count tłumaczeń, które były nieaktualne.',
         ],
         'field' => [
             'label' => 'Przetłumacz',
@@ -39,6 +41,9 @@ return [
         'bulk' => [
             'label' => 'Utwórz szkice tłumaczeń',
         ],
+    ],
+    'tooltips' => [
+        'stale' => 'Tekst źródłowy zmienił się od ostatniego tłumaczenia.',
     ],
     'columns' => [
         'status' => 'Tłumaczenie',

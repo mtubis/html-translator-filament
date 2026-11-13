@@ -19,7 +19,18 @@ While the version is 0.x, a minor version may change the public API; this file s
 - README: **Translating in the panel (for editors)**, a step-by-step guide for the people who translate and review
   content: states and badges, translating a record, a field or many records, reviewing, stale translations.
 
+### Fixed
+- **Mark as reviewed** clears *Stale*: reviewing accepts a translation for the current source text, also when it was
+  corrected by hand after the source changed. Stale reviewed translations can be reviewed again (#3).
+
 ### Changed
+- The status column keeps the state visible when a translation is stale: `EN · Reviewed` and a separate `EN · Stale`
+  badge with a tooltip giving the reason, instead of `EN · Stale` alone.
+- The **Mark as reviewed** confirmation says how many of the translations are stale; the success notification
+  counts them.
+- `TranslationStateStore` (breaking for custom implementations): `markReviewedAll()` takes `bool $includeStale = true`,
+  and the new `reviewable()` lists what it would mark. `markReviewed()` and `markReviewedAll()` store the current
+  source hash.
 - The bulk action builds its job batch with the new `TranslationBatch` class (no behaviour change).
 
 ## [0.1.2] - 2026-11-13

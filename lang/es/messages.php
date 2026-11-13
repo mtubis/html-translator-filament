@@ -28,6 +28,8 @@ return [
             'label' => 'Marcar como revisada',
             'heading' => '¿Marcar las traducciones automáticas como revisadas?',
             'done' => ':count traducción marcada como revisada.|:count traducciones marcadas como revisadas.',
+            'stale_warning' => ':count de ellas está desactualizada: su texto de origen cambió. Confirma solo si la revisaste con el texto de origen actual.|:count de ellas están desactualizadas: su texto de origen cambió. Confirma solo si las revisaste con el texto de origen actual.',
+            'done_stale' => 'Incluida :count que estaba desactualizada.|Incluidas :count que estaban desactualizadas.',
         ],
         'field' => [
             'label' => 'Traducir',
@@ -35,6 +37,9 @@ return [
         'bulk' => [
             'label' => 'Generar borradores traducidos',
         ],
+    ],
+    'tooltips' => [
+        'stale' => 'El texto de origen cambió desde la última traducción.',
     ],
     'columns' => [
         'status' => 'Traducción',

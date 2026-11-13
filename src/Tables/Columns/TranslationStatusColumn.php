@@ -15,9 +15,11 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * One badge per target locale summarising the record's translations (and those of the configured relations):
- * missing if anything is untranslated, else stale if a source changed, else machine if anything is unreviewed, else
- * reviewed. Eager-load `translationStates` on the table query to avoid one query per row.
+ * Per target locale, one badge summarising the record's translations (and those of the configured relations):
+ * missing if anything is untranslated, else machine if anything is unreviewed, else reviewed. A second "stale" badge,
+ * with a tooltip giving the reason, is added when a source text changed after its translation, so a reviewed but
+ * stale translation still shows that it was reviewed. Eager-load `translationStates` on the table query to avoid one
+ * query per row.
  */
 final class TranslationStatusColumn extends TextColumn
 {
@@ -54,7 +56,10 @@ final class TranslationStatusColumn extends TextColumn
                 TranslationStatus::Reviewed->value => 'success',
                 self::STALE => 'danger',
                 default => 'gray',
-            });
+            })
+            ->tooltip(static fn(mixed $state): ?string => \is_string($state) && self::statusOf($state) === self::STALE
+                ? Lang::get('tooltips.stale')
+                : null);
     }
 
     private static function localeOf(string $state): string
@@ -93,10 +98,14 @@ final class TranslationStatusColumn extends TextColumn
 
         $summary = [];
         foreach ($locales->targets() as $locale) {
-            $summary[] = $locale . ':' . $this->aggregate(
-                array_values(array_filter($all, static fn(TranslationState $state): bool => $state->locale === $locale)),
-                $states,
-            );
+            $inLocale = array_values(array_filter($all, static fn(TranslationState $state): bool => $state->locale === $locale));
+            $summary[] = $locale . ':' . $this->aggregate($inLocale);
+            foreach ($inLocale as $state) {
+                if ($states->isStale($state)) {
+                    $summary[] = $locale . ':' . self::STALE;
+                    break;
+                }
+            }
         }
 
         return $summary;
@@ -105,21 +114,11 @@ final class TranslationStatusColumn extends TextColumn
     /**
      * @param list<TranslationState> $states
      */
-    private function aggregate(array $states, TranslationStateStore $store): string
+    private function aggregate(array $states): string
     {
-        if ($states === []) {
-            return TranslationStatus::Missing->value;
-        }
-
         $statuses = array_map(static fn(TranslationState $state): TranslationStatus => $state->status, $states);
-        if (\in_array(TranslationStatus::Missing, $statuses, true)) {
+        if ($statuses === [] || \in_array(TranslationStatus::Missing, $statuses, true)) {
             return TranslationStatus::Missing->value;
-        }
-
-        foreach ($states as $state) {
-            if ($store->isStale($state)) {
-                return self::STALE;
-            }
         }
 
         return \in_array(TranslationStatus::Machine, $statuses, true)

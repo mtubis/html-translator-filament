@@ -51,12 +51,26 @@ final class TranslationStatusColumnTest extends TestCase
     }
 
     #[Test]
-    public function a_changed_source_shows_as_stale_even_when_reviewed(): void
+    public function a_changed_source_keeps_the_status_and_adds_a_stale_badge(): void
     {
         $post = $this->translated('reviewed');
         $post->setTranslation('title', 'es', 'Otro título')->save();
 
-        $this->assertStatus($post, 'en:stale', 'EN · Desactualizada');
+        Livewire::test(ListPosts::class)
+            ->assertTableColumnStateSet('translation_status', ['en:reviewed', 'en:stale'], $post)
+            ->assertSee('EN · Revisada')
+            ->assertSee('EN · Desactualizada')
+            ->assertSee('El texto de origen cambió desde la última traducción.');
+    }
+
+    #[Test]
+    public function a_stale_machine_draft_shows_both_badges(): void
+    {
+        $post = $this->translated('machine');
+        $post->setTranslation('body', 'es', '<p>Otro texto</p>')->save();
+
+        Livewire::test(ListPosts::class)
+            ->assertTableColumnStateSet('translation_status', ['en:machine', 'en:stale'], $post);
     }
 
     private function translated(string $status): Post

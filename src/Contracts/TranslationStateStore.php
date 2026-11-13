@@ -41,6 +41,9 @@ interface TranslationStateStore
         ?string $profile,
     ): TranslationState;
 
+    /**
+     * Marks one translation as reviewed and accepts it for the current source text (it is no longer stale).
+     */
     public function markReviewed(
         Model&TracksTranslations $record,
         string $attribute,
@@ -49,12 +52,21 @@ interface TranslationStateStore
     ): TranslationState;
 
     /**
-     * Marks the record's translations in the locale as reviewed: machine drafts, and translations written by hand
-     * (a `missing` state whose target value is not empty). Empty and already reviewed ones are left alone.
+     * Marks the record's translations in the locale as reviewed: the states listed by reviewable(). Reviewing accepts
+     * a translation for the current source text, so stale ones are no longer stale afterwards.
      *
      * @return int the number of states marked
      */
-    public function markReviewedAll(Model&TracksTranslations $record, string $locale, ?int $reviewerId): int;
+    public function markReviewedAll(Model&TracksTranslations $record, string $locale, ?int $reviewerId, bool $includeStale = true): int;
+
+    /**
+     * The states markReviewedAll() would mark: machine drafts, translations written by hand (a `missing` state whose
+     * target value is not empty), and reviewed translations whose source changed since. With `$includeStale` false,
+     * stale machine drafts and stale reviewed translations are left out. Empty translations are never reviewable.
+     *
+     * @return list<TranslationState>
+     */
+    public function reviewable(Model&TracksTranslations $record, string $locale, bool $includeStale = true): array;
 
     /**
      * True when the source text changed after the translation was made. `missing` states are never stale.

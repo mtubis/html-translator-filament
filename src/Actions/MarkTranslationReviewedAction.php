@@ -9,6 +9,7 @@ use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use HtmlTranslator\Filament\Contracts\TracksTranslations;
 use HtmlTranslator\Filament\Contracts\TranslationStateStore;
+use HtmlTranslator\Filament\Enums\TranslationStatus;
 use HtmlTranslator\Filament\Support\ActiveLocale;
 use HtmlTranslator\Filament\Support\Lang;
 use Illuminate\Contracts\Auth\Factory as AuthFactory;
@@ -48,6 +49,11 @@ final class MarkTranslationReviewedAction extends Action
             ->icon(Heroicon::OutlinedCheckBadge)
             ->requiresConfirmation()
             ->modalHeading(Lang::get('actions.review.heading'))
+            ->modalDescription(function (?Model $record, mixed $livewire, ActiveLocale $active, TranslationStateStore $states): ?string {
+                $stale = $this->staleCount($record, $active->targetOrDefault($livewire), $states);
+
+                return $stale > 0 ? Lang::choice('actions.review.stale_warning', $stale) : null;
+            })
             ->hidden(static fn(mixed $livewire, ActiveLocale $active): bool => $active->isEditingSource($livewire))
             ->action(function (?Model $record, mixed $livewire, ActiveLocale $active, TranslationStateStore $states, AuthFactory $auth): void {
                 $locale = $active->targetOrDefault($livewire);
@@ -58,6 +64,7 @@ final class MarkTranslationReviewedAction extends Action
                 $userId = $auth->guard()->id();
                 $reviewer = \is_int($userId) ? $userId : (is_numeric($userId) ? (int) $userId : null);
 
+                $stale = $this->staleCount($record, $locale, $states);
                 $count = 0;
                 foreach ([$record, ...$this->related($record)] as $model) {
                     $count += $states->markReviewedAll($model, $locale, $reviewer);
@@ -65,9 +72,31 @@ final class MarkTranslationReviewedAction extends Action
 
                 Notification::make()
                     ->title(Lang::choice('actions.review.done', $count))
+                    ->body($stale > 0 ? Lang::choice('actions.review.done_stale', $stale) : null)
                     ->success()
                     ->send();
             });
+    }
+
+    /**
+     * How many of the translations that would be marked are stale (their source changed since).
+     */
+    private function staleCount(?Model $record, ?string $locale, TranslationStateStore $states): int
+    {
+        if (! $record instanceof TracksTranslations || $locale === null) {
+            return 0;
+        }
+
+        $count = 0;
+        foreach ([$record, ...$this->related($record)] as $model) {
+            foreach ($states->reviewable($model, $locale) as $state) {
+                if ($state->status !== TranslationStatus::Missing && $states->isStale($state)) {
+                    ++$count;
+                }
+            }
+        }
+
+        return $count;
     }
 
     /**

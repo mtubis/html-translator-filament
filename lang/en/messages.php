@@ -28,6 +28,8 @@ return [
             'label' => 'Mark as reviewed',
             'heading' => 'Mark the machine translations as reviewed?',
             'done' => ':count translation marked as reviewed.|:count translations marked as reviewed.',
+            'stale_warning' => ':count of them is stale: its source text changed. Confirm only if you have checked it against the current source.|:count of them are stale: their source text changed. Confirm only if you have checked them against the current source.',
+            'done_stale' => 'Including :count that was stale.|Including :count that were stale.',
         ],
         'field' => [
             'label' => 'Translate',
@@ -35,6 +37,9 @@ return [
         'bulk' => [
             'label' => 'Generate draft translations',
         ],
+    ],
+    'tooltips' => [
+        'stale' => 'The source text changed after the last translation.',
     ],
     'columns' => [
         'status' => 'Translation',

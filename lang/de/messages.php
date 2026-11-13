@@ -31,6 +31,8 @@ return [
             'label' => 'Als geprüft markieren',
             'heading' => 'Übersetzungsentwürfe als geprüft markieren?',
             'done' => ':count Übersetzung als geprüft markiert.|:count Übersetzungen als geprüft markiert.',
+            'stale_warning' => ':count Übersetzung ist nicht aktuell, weil sich der Ausgangstext geändert hat. Markieren Sie sie nur dann als geprüft, wenn Sie sie mit dem aktuellen Ausgangstext verglichen haben.|:count Übersetzungen sind nicht aktuell, weil sich der Ausgangstext geändert hat. Markieren Sie sie nur dann als geprüft, wenn Sie sie mit dem aktuellen Ausgangstext verglichen haben.',
+            'done_stale' => 'Davon war :count nicht aktuell.|Davon waren :count nicht aktuell.',
         ],
         'field' => [
             'label' => 'Übersetzen',
@@ -38,6 +40,9 @@ return [
         'bulk' => [
             'label' => 'Übersetzungsentwürfe erstellen',
         ],
+    ],
+    'tooltips' => [
+        'stale' => 'Der Ausgangstext wurde seit der letzten Übersetzung geändert.',
     ],
     'columns' => [
         'status' => 'Übersetzung',
