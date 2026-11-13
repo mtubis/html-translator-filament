@@ -93,6 +93,7 @@ To update it:
 
 > **Known limitation (0.1):** correcting a stale translation by hand and clicking **Mark as reviewed** does not
 > clear the *Stale* badge. Use the **Translate** button of the field first (step 1), then correct the draft.
+> To be fixed in 0.2 ([#3](https://github.com/mtubis/html-translator-filament/issues/3)).
 
 ### From the command line
 Commands for translating and reviewing many records at once (`html-translator-filament:translate` and
