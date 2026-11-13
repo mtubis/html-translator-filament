@@ -438,7 +438,7 @@ Filament's own texts. Shipped languages:
 | `de` | German | fluent speaker |
 | `pl` | Polish | native speaker |
 | `es` | Spanish | non-native speaker; native input welcome |
-| `fr` | French | not yet reviewed; native input welcome |
+| `fr` | French | non-native speaker; native input welcome |
 | `uk` | Ukrainian | not yet reviewed; native input welcome |
 | `zh_CN` | Chinese (Mandarin, Simplified) | not yet reviewed; native input welcome |
 

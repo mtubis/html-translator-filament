@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 /*
- * French. Not yet reviewed (a review by non-native speakers is pending); corrections by native speakers are welcome. Formal "vous".
+ * French. Reviewed by a non-native speaker; corrections by native speakers are welcome. Formal "vous".
  */
 return [
     'plugin_name' => 'Traducteur HTML',
     'status' => [
-        'missing' => 'Non traduit',
+        'missing' => 'Non traduite',
         'machine' => 'Brouillon',
-        'reviewed' => 'Vérifié',
+        'reviewed' => 'Vérifiée',
         'stale' => 'Pas à jour',
     ],
     'actions' => [
@@ -22,16 +22,16 @@ return [
             'policy' => 'Étendue de la traduction',
             'policies' => [
                 'only_missing' => 'Uniquement les traductions manquantes',
-                'overwrite_machine' => 'Remplacer aussi les brouillons de traduction',
+                'overwrite_machine' => 'Remplacer aussi les brouillons',
                 'force' => 'Remplacer aussi les traductions vérifiées',
             ],
             'confirm_force' => 'Je confirme le remplacement des traductions vérifiées.',
         ],
         'review' => [
             'label' => 'Marquer comme vérifié',
-            'heading' => 'Marquer les brouillons de traduction comme vérifiés ?',
+            'heading' => 'Marquer les brouillons comme vérifiés ?',
             'done' => ':count traduction marquée comme vérifiée.|:count traductions marquées comme vérifiées.',
-            'stale_warning' => ':count traduction n’est plus à jour, car le texte source a changé. Ne la marquez comme vérifiée qu’après l’avoir comparée au texte source actuel.|:count traductions ne sont plus à jour, car le texte source a changé. Ne les marquez comme vérifiées qu’après les avoir comparées au texte source actuel.',
+            'stale_warning' => ':count traduction n’est plus à jour, car le texte source a changé. Comparez-la au texte source actuel avant de la marquer comme vérifiée.|:count traductions ne sont plus à jour. Comparez chacune à son texte source actuel avant de la marquer comme vérifiée.',
             'done_stale' => 'Dont :count qui n’était plus à jour.|Dont :count qui n’étaient plus à jour.',
         ],
         'field' => [
@@ -53,14 +53,14 @@ return [
         'field_not_translated' => 'Le champ n’a pas pu être traduit',
         'started' => 'Traduction lancée',
         'started_body' => 'Une notification s’affichera lorsque le brouillon sera prêt.',
-        'failed' => 'La traduction n’a pas pu être terminée',
-        'failed_body' => 'Veuillez réessayer plus tard. Si l’erreur se reproduit, contactez l’administrateur du panneau.',
+        'failed' => 'La traduction n’a pas pu aboutir',
+        'failed_body' => 'Réessayez plus tard. Si le problème persiste, contactez votre administrateur.',
         'batch_done' => 'Brouillons de traduction créés',
         'batch_body' => 'Enregistrements traduits : :done sur :total',
         'translated' => 'Brouillon de traduction créé',
         'translated_with_problems' => 'Des problèmes sont survenus lors de la traduction',
         'counts' => 'Traduits : :translated · Ignorés : :skipped · Incomplets : :incomplete · Échecs : :failed',
-        'usage' => 'Jetons : :tokens · Résultats en cache : :cache_hits',
+        'usage' => 'Jetons : :tokens · Résultats réutilisés depuis le cache : :cache_hits',
         'issues' => 'Problèmes :',
     ],
 ];
