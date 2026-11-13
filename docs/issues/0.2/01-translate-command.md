@@ -1,5 +1,7 @@
 # Artisan command: translate records from the command line
 
+GitHub: https://github.com/mtubis/html-translator-filament/issues/2
+
 ## Context
 In 0.1 records are translated only from the panel: a field, a record, or the selected rows of a table. Translating a
 whole site for the first time, catching up after a batch of source edits, a scheduled run or a CI step all need a
