@@ -39,7 +39,7 @@ final class TranslationStatusColumnTest extends TestCase
     {
         $post = $this->translated('machine');
 
-        $this->assertStatus($post, 'en:machine', 'EN · Automática');
+        $this->assertStatus($post, 'en:machine', 'EN · Borrador');
     }
 
     #[Test]

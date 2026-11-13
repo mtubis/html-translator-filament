@@ -17,7 +17,7 @@ final class StatusLabelsTest extends TestCase
     public function labels_are_translated(): void
     {
         App::setLocale('es');
-        self::assertSame(['Sin traducir', 'Automática', 'Revisada'], $this->labels());
+        self::assertSame(['Sin traducir', 'Borrador', 'Revisada'], $this->labels());
 
         App::setLocale('en');
         self::assertSame(['Not translated', 'Machine', 'Reviewed'], $this->labels());
