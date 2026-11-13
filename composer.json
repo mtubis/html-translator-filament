@@ -1,6 +1,6 @@
 {
     "name": "mtubis/html-translator-filament",
-    "description": "Filament v5 plugin for markup-safe AI translation of translatable models, built on html-translator-laravel.",
+    "description": "AI translation for Filament v5: preserve HTML markup, review translations, and flag them when the source changes.",
     "type": "library",
     "license": "MIT",
     "keywords": [
@@ -10,7 +10,9 @@
         "translation",
         "llm",
         "html",
-        "spatie-translatable"
+        "spatie-translatable",
+        "i18n",
+        "localization"
     ],
     "authors": [
         {
