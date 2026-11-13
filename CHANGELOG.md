@@ -6,6 +6,10 @@ While the version is 0.x, a minor version may change the public API; this file s
 
 ## [Unreleased]
 
+### Added
+- README: **Translating in the panel (for editors)**, a step-by-step guide for the people who translate and review
+  content: states and badges, translating a record, a field or many records, reviewing, stale translations.
+
 ## [0.1.2] - 2026-11-13
 
 Documentation only: how to set up a provider and run the queue worker, without reading the code.

@@ -4,8 +4,100 @@ A Filament v5 plugin for markup-safe AI translation of `spatie/laravel-translata
 [`mtubis/html-translator-laravel`](https://github.com/mtubis/html-translator-laravel) and adds record and field
 actions, a review workflow (`machine` → `reviewed`) and stale-translation detection.
 
+- **Editors:** [Translating in the panel](#translating-in-the-panel-for-editors).
+- **Developers:** [Requirements](#requirements), [Installation](#installation),
+  [Choosing a provider and a model](#choosing-a-provider-and-a-model), [Queue](#queue).
+
 > **Status:** 0.1. The public API may still change in 0.x minor versions; the
 > [CHANGELOG](CHANGELOG.md) says how. Plans: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Translating in the panel (for editors)
+This section is for the people who write and translate content in a Filament panel where the plugin is installed.
+Developers: the setup starts at [Requirements](#requirements).
+
+Labels below are the plugin's English ones; a panel in Spanish shows the Spanish ones, and an application may rename
+them.
+
+### The idea
+- Content is written in one **source language**. The plugin translates it into the **target languages** with an AI
+  model.
+- An AI translation is a **draft**. Someone who knows the language reads it, corrects it if needed and marks it
+  **reviewed**. The application decides what visitors see; often only reviewed translations.
+- The plugin remembers, for every text and language, whether it is translated, a draft or reviewed, and notices when
+  the source text changes later.
+
+### Translation states
+The **Translation** column of a table shows one badge per target language, e.g. `EN · Machine`. The badge sums up the
+whole record (and its related items, if the application counts them): the worst state wins.
+
+| Badge | Meaning | What to do |
+|---|---|---|
+| **Not translated** (grey) | At least one text has no translation in this language. | Generate a draft, or write the translation yourself. |
+| **Machine** (yellow) | Translated by AI, not reviewed yet. | Read it, correct it, mark it as reviewed. |
+| **Stale** (red) | The source text changed after it was translated, so the translation may be out of date. | Update the translation (see [When the source text changes](#when-the-source-text-changes)). |
+| **Reviewed** (green) | Accepted by a person. | Nothing. |
+
+### Translate one record
+1. Open the record for editing and switch the form to the **target language** (the language switcher of the edit
+   page). The translation buttons are hidden while you edit the source language.
+2. Click **Generate draft translation** at the top of the page.
+3. Choose the **Target language** and **What to translate**:
+   - **Only what is not translated yet** (default): fills the gaps, keeps every existing translation.
+   - **Also replace machine translations**: translates the unreviewed drafts again too, e.g. after the source changed
+     or with a better model.
+   - **Also replace reviewed translations**: translates everything again, including texts a person has already
+     accepted. You have to tick *I understand that reviewed translations will be replaced*.
+4. Confirm. What happens next depends on the application:
+   - **Right away:** after a moment the form shows the drafts and a notification says how many texts were
+     translated, skipped, incomplete or failed.
+   - **In the background** (queued): a notification says *Translation started*. When the draft is ready, *Draft
+     translation ready* (or *finished with problems*) appears under the bell icon of the panel (it can take up to a
+     minute). **Reload the page** to
+     see the draft. (From version 0.3 the page will update by itself.)
+
+If a text could not be translated completely, the notification lists the problems and the old value stays in place.
+Try again later, or translate that text yourself.
+
+### Translate one field
+Next to a field (in the target language) there is a **Translate** button. It fills only that field with a draft from
+the source text and **saves nothing**. Check the text and click **Save**: the field becomes a *Machine* draft.
+
+Use it to redo one text without touching the others, or to update a single stale text.
+
+### Translate many records
+In the table, select the records (the checkbox in the header selects the whole page), open the bulk actions and choose
+**Generate draft translations**. The form is the same as for one record. In the background mode you get one
+notification when all records are done.
+
+### Review a translation
+1. Open the record in the target language and read the drafts. Correct what needs correcting and **Save**.
+   Saving does **not** review: the state stays *Machine*.
+2. Click **Mark as reviewed** at the top of the page (or in the table row, if the application shows it there) and
+   confirm.
+
+This marks every draft of the record in that language as reviewed, and also translations you typed yourself, with
+a note of who reviewed it and when. Empty texts stay *Not translated*.
+
+### Write a translation yourself
+You do not have to use AI. Switch to the target language, type the translation, **Save**, then **Mark as reviewed**.
+
+### When the source text changes
+When someone edits the source text, its translations get the **Stale** badge. A reviewed translation stays visible as
+it is (it is never removed or downgraded automatically), but it may no longer match the source.
+
+To update it:
+1. In the target language, click **Translate** next to the changed field (or run **Generate draft translation** with
+   *Also replace machine translations*, or *Also replace reviewed translations* when the old translation was
+   reviewed).
+2. Check and correct the new draft, **Save**.
+3. Click **Mark as reviewed**.
+
+> **Known limitation (0.1):** correcting a stale translation by hand and clicking **Mark as reviewed** does not
+> clear the *Stale* badge. Use the **Translate** button of the field first (step 1), then correct the draft.
+
+### From the command line
+Commands for translating and reviewing many records at once (`html-translator-filament:translate` and
+`html-translator-filament:mark-reviewed`) are planned for version 0.2; they will be described here.
 
 ## Requirements
 PHP 8.4+, Laravel 13, Filament 5, `mtubis/html-translator-laravel` ^0.2 (installed with the plugin). The translations
