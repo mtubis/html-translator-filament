@@ -62,7 +62,8 @@ TranslationStatusColumn::make()       // badge per locale: missing | machine | r
   4. actions + status column;
   5. queue + notifications;
   6. field action.
-- **0.2**: Artisan commands `html-translator-filament:translate` and `:mark-reviewed` (`docs/issues/0.2/`).
+- **0.2**: Artisan commands `html-translator-filament:translate` and `:mark-reviewed`; reviewing a stale translation
+  clears "Stale" (`docs/issues/0.2/`).
 - **0.3**: show a queued translation without reloading the edit page: polling while a job runs, a button in the
   notification (`docs/issues/0.3/`).
 - **0.4**: "Translations" page (issues, token usage, stale), an action form with provider / profile / target locales,
