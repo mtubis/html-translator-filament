@@ -2,41 +2,36 @@
 
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses [Semantic Versioning](https://semver.org/).
+While the version is 0.x, a minor version may change the public API; this file says how.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-13
+
+First release: translate spatie-translatable records from a Filament 5 panel with
+[html-translator-laravel](https://github.com/mtubis/html-translator-laravel), review the drafts and see which
+translations are missing, unreviewed or stale.
+
 ### Added
-- Package skeleton: `HtmlTranslatorPlugin` (panel configuration: source and target locales, profile, provider,
-  queue), service provider with `en`/`es` translations, `InvalidPluginConfigurationException`.
-- Testbench workbench with a Filament panel and a translatable `Post` fixture; Pint, Rector, PHPStan (max) and
-  PHPUnit via `composer check`; GitHub Actions CI.
-- Translation states: publishable `translation_states` migration (a no-op when the table exists),
-  `TranslationStatus` enum with Filament labels/colours, `TranslationState` model with stale detection,
-  `TracksTranslations` contract and `HasTranslationStates` trait, an observer creating `missing` states for new source
-  texts, and the `TranslationStateStore` contract with an Eloquent implementation.
-- `HtmlTranslatorPlugin::register()` publishes the locales (`TranslationLocales`) for models, observers and jobs;
-  panels must agree on them.
-- `TranslateRecord`: translates a record (and opt-in relations) into a target locale. HTML vs plain-text attributes
-  (`$htmlTranslatable`), overwrite policies (`OnlyMissing`, `OverwriteMachine`, `Force`), complete results only, one
-  transaction after the model calls, and a `TranslationReport` with outcomes and summed stats.
-- `TranslationDefaults` (profile/provider published by the plugin); `TracksTranslations` gains
-  `getHtmlTranslatableAttributes()` and `setTranslation()`; `TranslationStateStore::status()`.
-- Filament layer: `TranslateRecordAction` (locale + overwrite policy, confirmation for `Force`, report
-  notification, form refresh), `MarkTranslationReviewedAction` (page and table), `TranslateBulkAction` (synchronous
-  for now), `TranslationStatusColumn` (missing / machine / stale / reviewed per target locale), `ReportNotification`,
-  and English/Spanish UI strings.
-- `TranslationStateStore::markReviewedAll()`, `TranslationReport::merge()`, `Support\ActiveLocale` (reads a public
-  `activeLocale`, as on lara-zeus/spatie-translatable pages).
-- Queue: `HtmlTranslatorPlugin::queue()` and `->rateLimit()`; `TranslateRecordJob` (overlap protection, rate
-  limiting, database notification with the report, generic failure notification); the bulk action dispatches one
-  batch with one notification.
-- `RefreshesAfterTranslation` trait for relation managers (badges refresh after the translate action).
-- Fixed after the first dogfooding run: status column label ("Translation"), `TranslationReport::skipped()` no longer
-  counts empty sources (`empty()` does).
-- Field action: `TranslateFieldAction` and the `->translateWithAi()` field macro; fills only the form state, the
-  save marks the attribute `machine` (session-backed `PendingFieldTranslations`, skipped if the source changed).
-- `Translation\TextTranslator` / `TextResult`: one text in, one result out; used by `TranslateRecord` and the field
-  action.
-- Reviewing also covers translations written by hand (a `missing` state with a value), which get the current source
-  hash; before, they could never become `reviewed`.
-- Mutation testing (Infection, as in html-translator-laravel) is planned once there is logic worth mutating.
+- **Panel plugin**: `HtmlTranslatorPlugin` with source and target locales, profile, provider, queue (connection and
+  queue name) and an optional rate limit.
+- **Translation states**: publishable `translation_states` migration (a no-op when the table exists), `missing` →
+  `machine` → `reviewed`, stale detection from a hash of the source text. `TracksTranslations` contract,
+  `HasTranslationStates` trait, an observer that creates `missing` states, and the `TranslationStateStore` contract
+  with an Eloquent implementation.
+- **`TranslateRecord`**: translates a record and opt-in relations into one locale. HTML attributes are declared on
+  the model (`$htmlTranslatable`); plain text is escaped. Overwrite policies `OnlyMissing`, `OverwriteMachine` and
+  `Force` (the only one that touches reviewed translations). Only complete results are written, in one transaction
+  after the model calls, and a `TranslationReport` gives per-attribute outcomes and summed usage.
+- **Filament**: `TranslateRecordAction`, `MarkTranslationReviewedAction` (machine drafts and hand-written
+  translations), `TranslateBulkAction`, `TranslationStatusColumn`, the field action `TranslateFieldAction` /
+  `->translateWithAi()`, and `RefreshesAfterTranslation` for relation managers. They read the edited locale from a
+  public `activeLocale` (as on lara-zeus/spatie-translatable pages).
+- **Queue**: `TranslateRecordJob` with overlap protection per record and locale, optional rate limiting, database
+  notifications with the report, and one batch with one notification for bulk runs.
+- **Safety**: notifications contain counts, usage and the translator's issue messages only: never prompt text,
+  translations, keys or exception details from outside the translator.
+- English and Spanish UI strings.
+
+[Unreleased]: https://github.com/mtubis/html-translator-filament/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/mtubis/html-translator-filament/releases/tag/v0.1.0

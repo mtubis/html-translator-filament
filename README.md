@@ -4,8 +4,8 @@ A Filament v5 plugin for markup-safe AI translation of `spatie/laravel-translata
 [`mtubis/html-translator-laravel`](https://github.com/mtubis/html-translator-laravel) and adds record and field
 actions, a review workflow (`machine` → `reviewed`) and stale-translation detection.
 
-> **Status:** early development, not released. Today the package registers a configurable panel plugin; the actions
-> arrive with 0.1 (see [docs/issues/0.1](docs/issues/0.1) and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)).
+> **Status:** 0.1, the first release. The public API may still change in 0.x minor versions; the
+> [CHANGELOG](CHANGELOG.md) says how. Plans: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Requirements
 PHP 8.4+, Laravel 13, Filament 5, `mtubis/html-translator-laravel` ^0.2 (configured with at least one provider).

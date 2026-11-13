@@ -55,7 +55,7 @@ TranslationStatusColumn::make()       // badge per locale: missing | machine | r
   doesn't need.
 
 ## Milestones
-- **0.1**: issues in `docs/issues/0.1/`, in this order:
+- **0.1** (released 2026-11-13): issues in `docs/issues/0.1/`, in this order:
   1. bootstrap;
   2. translation states;
   3. `TranslateRecord` (with opt-in relations);
