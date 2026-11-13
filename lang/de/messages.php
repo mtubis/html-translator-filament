@@ -22,7 +22,7 @@ return [
             'policy' => 'Übersetzungsumfang',
             'policies' => [
                 'only_missing' => 'Nur fehlende Übersetzungen erstellen',
-                'overwrite_machine' => 'Auch maschinelle Übersetzungen überschreiben',
+                'overwrite_machine' => 'Auch Übersetzungsentwürfe überschreiben',
                 'force' => 'Auch geprüfte Übersetzungen überschreiben',
             ],
             'confirm_force' => 'Ich bestätige, dass auch geprüfte Übersetzungen überschrieben werden.',
