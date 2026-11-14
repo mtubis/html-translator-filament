@@ -6,6 +6,15 @@ While the version is 0.x, a minor version may change the public API; this file s
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-14
+
+Supply-chain hardening; no change to the plugin's code or public API.
+
+### Security
+- A security policy (`SECURITY.md`): report vulnerabilities privately through GitHub security advisories.
+- CI actions are pinned to commit SHAs, and Dependabot keeps them and the Composer dependencies up to date, with a
+  cooldown before a new release is proposed.
+
 ## [0.2.0] - 2026-11-13
 
 Translate and review whole sites from the command line, see at a glance which reviewed translations are out of date,
@@ -95,7 +104,8 @@ translations are missing, unreviewed or stale.
   translations, keys or exception details from outside the translator.
 - English and Spanish UI strings.
 
-[Unreleased]: https://github.com/mtubis/html-translator-filament/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/mtubis/html-translator-filament/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/mtubis/html-translator-filament/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/mtubis/html-translator-filament/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/mtubis/html-translator-filament/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/mtubis/html-translator-filament/compare/v0.1.0...v0.1.1
